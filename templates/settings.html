@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eAkadamik | Settings</title>
+    <style>
+        /* --- 1. RESET & BASE SETUP --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body { 
+            min-height: 100vh; 
+            min-width: max-content; 
+            background-color: #eaebed; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* --- 2. ORANGE HEADER --- */
+        .top-header { 
+            background-color: #cc5a27; 
+            color: white; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 40px; 
+            width: 100%;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-text h1 { font-size: 20px; font-weight: normal; margin: 0; }
+        .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; }
+        .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
+        .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; }
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px;}
+        
+        /* --- 3. BEIGE NAVIGATION BAR --- */
+        .main-nav { 
+            background-color: #e6dac8; 
+            display: flex; 
+            border-bottom: 1px solid #ccc;
+            width: 100%;
+            padding: 0 40px; 
+        }
+        
+        .main-nav a { 
+            padding: 12px 22px; 
+            text-decoration: none; 
+            color: #555; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            display: inline-block;
+        }
+        
+        /* Active Tab - Settings */
+        .main-nav a.active { 
+            background-color: #eaebed; 
+            color: #333; 
+            border-top: 3px solid #cc5a27; 
+        }
+
+        .logout-btn { margin-left: auto; }
+        
+        /* --- 4. MAIN WORKSPACE --- */
+        .container { 
+            display: flex; 
+            padding: 30px 40px; 
+            gap: 30px; 
+            flex: 1; 
+            align-items: flex-start; 
+            width: 100%;
+        }
+
+        /* --- 5. SIDEBAR PROFILE CARD --- */
+        .sidebar { 
+            width: 260px; 
+            background-color: #f1ebd9; 
+            border: 1px solid #dcd3c2; 
+            padding: 25px 20px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); 
+        }
+        
+        .profile-icon { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 50%; 
+            border: 2px solid #555; 
+            margin: 0 auto 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 30px; 
+            background: white; 
+            color: #555; 
+        }
+        
+        .sidebar h3 { text-align: center; font-size: 15px; font-weight: normal; margin-bottom: 2px; }
+        .sidebar p { text-align: center; font-size: 13px; color: #444; margin-bottom: 25px; }
+        
+        /* --- 6. CLICKABLE TEAL BUTTONS --- */
+        .action-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 10px 10px; 
+            margin-bottom: 8px; 
+            font-size: 12px; 
+            font-weight: normal; 
+            border: 1px solid #1a7a7a; 
+            background-color: #208b8b; 
+            color: white;
+            text-decoration: none; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: background-color 0.2s ease;
+        }
+        
+        .action-btn:hover { background-color: #166e6e; }
+
+        /* --- 7. FOOTER --- */
+        .footer { 
+            background-color: #cc5a27; 
+            color: rgba(255,255,255,0.9); 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 40px; 
+            font-size: 11px; 
+            width: 100%; 
+        }
+
+        /* --- 8. FORM INPUTS --- */
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo-text"><h1>e-Akadamik</h1><p>UNIFIED ACADEMIC SYSTEM</p></div>
+            <div class="university-name"><h2>PANJAB UNIVERSITY</h2><h2>CHANDIGARH</h2></div>
+        </div>
+        <div class="header-right">
+            <p>Welcome<br><strong>{{ user.name }} ({{ user.role }})</strong></p>
+            <div style="font-size: 24px;">👤</div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <a href="/dashboard">DASHBOARD</a>
+        <a href="/workflow">WORK-FLOW</a>
+        <a href="/result">RESULT</a>
+        <a href="/attendance">ATTENDANCE</a>
+        <a href="/syllabus">SYLLABUS</a>
+        <a href="/docupload">DOCUPLOAD</a>
+        <a href="/settings" class="active">SETTINGS</a>
+        <a href="/logout" class="logout-btn">LOGOUT</a>
+    </nav>
+
+    <div class="container">
+        
+        <aside class="sidebar">
+            <div class="profile-icon">👤</div>
+            <h3>{{ user.name }}</h3>
+            <p>({{ user.role }})</p>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul style="list-style:none; padding:0; margin-bottom:10px;">
+                  {% for category, message in messages %}
+                    <li style="color:green; font-size:12px;">{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+            
+            <!-- Change Password Form -->
+<form action="/settings?action=password" method="POST">
+
+    <input type="password"
+           name="current_password"
+           placeholder="Current Password"
+           class="form-input"
+           required>
+
+    <br><br>
+
+    <input type="password"
+           name="new_password"
+           placeholder="New Password"
+           class="form-input"
+           required>
+
+    <br><br>
+
+    <input type="password"
+           name="confirm_password"
+           placeholder="Confirm New Password"
+           class="form-input"
+           required>
+
+    <br><br>
+
+    <button type="submit" class="action-btn">
+        Change Password
+    </button>
+
+</form>
+        </aside>
+
+    </div>
+
+    <footer class="footer">
+        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
+        <p>Powered By C-DAC Mohali</p>
+    </footer>
+
+</body>
+</html>

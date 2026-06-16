@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eAkadamik | Work-Flow</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #eaebed; color: #333; height: 100vh; display: flex; flex-direction: column; }
+
+        .top-header { background-color: #cc5500; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-text h1 { font-size: 20px; font-weight: normal; }
+        .logo-text p { font-size: 9px; letter-spacing: 1px; }
+        .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
+        .university-name h2 { font-size: 14px; font-weight: normal; }
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px;}
+
+        .main-nav { background-color: #e8dbce; display: flex; border-bottom: 1px solid #ccc; }
+        .main-nav a { padding: 12px 25px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .main-nav a.active { background-color: #eaebed; color: #555; border-top: 3px solid #cc5500; }
+
+        .container { padding: 30px; flex-grow: 1; display:flex; gap:30px; }
+
+        .workflow-card { width: 250px; background-color: #f4ede4; border: 1px solid #d9d0c5; padding: 25px 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .profile-icon { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #555; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; background: white; color: #555; }
+        .workflow-card h3 { font-size: 15px; color: #333; margin-bottom: 2px; font-weight: normal; }
+        .workflow-card p { font-size: 13px; color: #333; margin-bottom: 20px; }
+
+        .action-btn { display: block; width: 100%; background-color: #2b8b8b; color: white; text-decoration: none; padding: 10px; margin-bottom: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; text-align:center; }
+        .action-btn:hover { background-color: #1e6666; }
+
+        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #d9d0c5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; }
+        .form-container { padding: 30px; }
+        .form-container h4 { font-size: 13px; color: #333; margin-bottom: 25px; font-weight: bold; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 50px; }
+        .form-group { display: flex; align-items: center; justify-content: space-between; }
+        .form-group label { font-size: 12px; color: #333; width: 30%; }
+        .form-group select { width: 65%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; color: #555; background-color: #fdfdfd; }
+        .form-actions { margin-top: 30px; text-align: center; }
+
+        table { width:100%; border-collapse:collapse; margin-top:20px; font-size:12px; }
+        th { background:#16a085; color:white; padding:8px; text-align:left; }
+        td { border-bottom:1px solid #ddd; padding:8px; }
+        tr:hover { background-color:#f9f9f9; }
+
+        .footer { background-color: #cc5500; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; padding: 8px 40px; font-size: 11px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo-text">
+                <h1>e-Akadamik</h1>
+                <p>UNIFIED ACADEMIC SYSTEM</p>
+            </div>
+            <div class="university-name">
+                <h2>PANJAB UNIVERSITY</h2>
+                <h2>CHANDIGARH</h2>
+            </div>
+        </div>
+        <div class="header-right">
+            <p>Welcome<br><strong>{{ user.name }} ({{ user.role }})</strong></p>
+            <div style="font-size: 24px;">👤</div>
+        </div>
+    </header>
+
+ <nav class="main-nav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/workflow" class="active">Work-Flow</a>
+    <a href="/result">Result</a>
+    <a href="/attendance">Attendance</a>
+    <a href="/syllabus">Syllabus</a>
+    <a href="/docupload">DocUpload</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
+</nav>
+
+
+
+    <div class="container">
+        <div class="workflow-card">
+            <div class="profile-icon">👤</div>
+            <h3>{{ user.name }}</h3>
+            <p>({{ user.role }})</p>
+            
+            <a href="/workflow?action=assign" class="action-btn">Assign Subject</a>
+            <a href="/workflow?action=view" class="action-btn">View Assigned Subject</a>
+        </div>
+
+        <!-- Right dynamic content -->
+        {% if action == "assign" %}
+        <main class="content-panel">
+            <div class="panel-header">Assign Subject</div>
+            <div class="form-container">
+                <h4>Enter Details</h4>
+                <form method="POST" action="/workflow?action=assign">
+                    <div class="form-grid">
+                        <div class="form-column">
+                            <div class="form-group"><label>Department</label>
+                                <select name="department">
+                                    <option value="CSE">Computer Science & Engineering</option>
+                                    <option value="ECE">Electronics & Communication Engineering</option>
+                                    <option value="ME">Mechanical Engineering</option>
+                                    <option value="CE">Civil Engineering</option>
+                                    <option value="EE">Electrical Engineering</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Batch</label>
+                                <select name="batch">
+                                    <option value="2022-2026">2022–2026</option>
+                                    <option value="2023-2027">2023–2027</option>
+                                    <option value="2024-2028">2024–2028</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Subject Type</label>
+                                <select name="subject_type">
+                                    <option value="Theory">Theory</option>
+                                    <option value="Practical">Practical</option>
+                                    <option value="Elective(Theory)">Elective (Theory)</option>
+                                    <option value="Elective(Practical)">Elective (Practical)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-column">
+                            <div class="form-group"><label>Course</label>
+                                <select name="course">
+                                    <option value="BE">B.E</option>
+                                                                        <option value="BTech">B.Tech</option>
+                                    <option value="MTech">M.Tech</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Semester</label>
+                                <select name="semester">
+                                    <option value="1">1st</option>
+                                    <option value="2">2nd</option>
+                                    <option value="3">3rd</option>
+                                    <option value="4">4th</option>
+                                    <option value="5">5th</option>
+                                    <option value="6">6th</option>
+                                    <option value="7">7th</option>
+                                    <option value="8">8th</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Subject</label>
+                                <select name="subject">
+                                    <option value="CS-402">Linear Algebra & Probability Theory (CS-402)</option>
+                                    <option value="CS-403">Analysis & Design of Algorithms (CS-403)</option>
+                                    <option value="CS-404">Computer Architecture (CS-404)</option>
+                                    <option value="CS-405">Operating Systems (CS-405)</option>
+                                    <option value="CS-406">Computer Networks (CS-406)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="action-btn" style="background-color:#16a085; width:auto; padding:8px 20px;">Assign</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        {% elif action == "view" %}
+        <main class="content-panel">
+            <div class="panel-header">Assigned Subjects</div>
+            <div class="form-container">
+                <table>
+                    <tr>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Subject Type</th>
+                        <th>Subject</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for s in subjects %}
+                    <tr>
+                        <td>{{ s[0] }}</td>
+                        <td>{{ s[1] }}</td>
+                        <td>{{ s[2] }}</td>
+                        <td>{{ s[3] }}</td>
+                        <td>{{ s[4] }}</td>
+                        <td>{{ s[5] }}</td>
+                        <td>
+                            <form method="POST" action="/workflow?action=delete" style="display:inline;">
+                                <input type="hidden" name="id" value="{{ s[6] }}">
+                                <button type="submit" class="action-btn" style="background-color:#cc0000; color:white; border:none; padding:5px 10px; font-size:11px;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </main>
+        {% else %}
+            <p>Select an option from the left.</p>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
+        <p>Powered By C-DAC Mohali</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eAkadamik | Result</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        html, body { height: 100%; min-width: max-content; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
+
+        .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; width: 100%; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-text h1 { font-size: 20px; font-weight: normal; margin: 0; }
+        .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; }
+        .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
+        .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; }
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px;}
+
+        .main-nav { background-color: #f0e9df; display: flex; border-bottom: 1px solid #ccc; width: 100%; padding: 0 10px; }
+        .main-nav a { padding: 12px 25px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .main-nav a.active { background-color: #eaeff2; color: #555; border-top: 3px solid #cc5a27; }
+
+        .container { display: flex; padding: 30px; gap: 30px; flex: 1; align-items: flex-start; width: 100%; }
+
+        .workflow-card { width: 250px; background-color: #f4ede4; border: 1px solid #d9d0c5; padding: 25px 15px; text-align: center; }
+        .profile-icon { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #555; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; background: white; color: #555; }
+        .workflow-card h3 { font-size: 15px; font-weight: normal; margin-bottom: 2px; }
+        .workflow-card p { font-size: 13px; margin-bottom: 20px; }
+
+        .action-btn { display: block; width: 100%; padding: 10px; margin-bottom: 8px; font-size: 12px; font-weight: bold; border: 1px solid #16a085; text-decoration: none; cursor: pointer; text-align:center; }
+        .btn-active { background-color: #16a085; color: white; }
+        .btn-inactive { background-color: transparent; color: #16a085; }
+
+        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #d9d0c5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; }
+        .form-container { padding: 30px; }
+        .form-container h4 { font-size: 13px; color: #333; margin-bottom: 25px; font-weight: bold; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 50px; }
+        .form-group { display: flex; align-items: center; justify-content: space-between; }
+        .form-group label { font-size: 12px; color: #333; width: 30%; }
+        .form-group select, .form-group input[type="text"] { width: 65%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; color: #555; background-color: #fdfdfd; }
+
+        .form-actions { margin-top: 30px; text-align: center; }
+        .btn-submit { background-color: #16a085; border: none; color: white; padding: 8px 25px; font-size: 12px; cursor: pointer; margin-right: 10px; font-weight: bold; }
+        .btn-submit:hover { background-color: #12876f; }
+        .btn-cancel { background-color: #f4f4f4; border: 1px solid #ccc; padding: 8px 25px; font-size: 12px; cursor: pointer; color: #333; }
+
+        table { width:100%; border-collapse:collapse; margin-top:20px; font-size:12px; }
+        th { background:#16a085; color:white; padding:8px; text-align:left; }
+        td { border-bottom:1px solid #ddd; padding:8px; }
+        tr:hover { background-color:#f9f9f9; }
+
+        .student-info { margin: 20px 0; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; border-radius: 6px; }
+        .student-info h3 { margin-bottom: 10px; color: #333; text-align: center; }
+        .student-info p { margin: 5px 0; font-size: 14px; }
+
+        .print-btn { margin-top: 20px; display: block; padding: 10px 15px; background: #0073e6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .print-btn:hover { background: #005bb5; }
+
+        .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 8px 30px; font-size: 11px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo-text"><h1>e-Akadamik</h1><p>UNIFIED ACADEMIC SYSTEM</p></div>
+            <div class="university-name"><h2>PANJAB UNIVERSITY</h2><h2>CHANDIGARH</h2></div>
+        </div>
+        <div class="header-right">
+            <p>Welcome<br><strong>{{ user.name }} ({{ user.role }})</strong></p>
+            <div style="font-size: 24px;">👤</div>
+        </div>
+    </header>
+
+ <nav class="main-nav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/workflow">Work-Flow</a>
+    <a href="/result" class="active">Result</a>
+    <a href="/attendance">Attendance</a>
+    <a href="/syllabus">Syllabus</a>
+    <a href="/docupload">DocUpload</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
+</nav>
+
+
+    <div class="container">
+        <aside class="workflow-card">
+            <div class="profile-icon">👤</div>
+            <h3>{{ user.name }}</h3>
+            <p>({{ user.role }})</p>
+            
+            <a href="/result?action=fetch" class="action-btn btn-active">View Result</a>
+        </aside>
+
+        {% if action == "fetch" %}
+        <main class="content-panel">
+            <div class="panel-header">Result Criteria -</div>
+            <div class="form-container">
+                <h4>Enter Student Details</h4>
+                <form method="POST" action="/result?action=fetch">
+                    <div class="form-grid">
+                        <div class="form-column">
+                            <div class="form-group">
+                                <label>Branch</label>
+                                <select name="branch" required>
+                                    <option value="">Select Branch</option>
+                                    <option value="CSE">Computer Science & Engineering (CSE)</option>
+                                    <option value="ECE">Electronics & Communication (ECE)</option>
+                                    <option value="Mech">Mechanical Engineering</option>
+                                    <option value="Civil">Civil Engineering</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Session</label>
+                                <select name="session" required>
+                                    <option value="">Select Session</option>
+                                    <option value="2024-2028">2024 - 2028</option>
+                                    <option value="2025-2029">2025 - 2029</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-column">
+                            <div class="form-group">
+                                <label>Semester</label>
+                                <select name="semester" required>
+                                    <option value="">Select Semester</option>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Roll No.</label>
+                                <input type="text" name="roll_no" placeholder="Enter Roll No." required>
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">Fetch Result</button>
+                        <button type="button" class="btn-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        
+                      
+{% elif action == "view" %}
+<main class="content-panel">
+    <div class="panel-header">Marksheet</div>
+    <div class="form-container">
+        {% if student %}
+            <div class="student-info">
+                <h3>Student Details</h3>
+                <p><strong>Name:</strong> {{ student[2] }}</p>
+                <p><strong>Branch:</strong> {{ student[3] }}</p>
+                <p><strong>Semester:</strong> {{ student[4] }}</p>
+                <p><strong>Session:</strong> {{ student[5] }}</p>
+            </div>
+        {% endif %}
+
+        <table>
+            <tr>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Grade</th>
+            </tr>
+            {% for r in results %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <button class="print-btn" onclick="window.print()">Print Marksheet</button>
+    </div>
+</main>
+{% endif %}
+
+    </div>
+
+    <footer class="footer">
+        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
+        <p>Powered By C-DAC Mohali</p>
+    </footer>
+
+</body>
+</html>

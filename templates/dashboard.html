@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eAkadamik | {{ user.title }}</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo-text">
+                <h1>e-Akadamik</h1>
+                <p>UNIFIED ACADEMIC SYSTEM</p>
+            </div>
+
+            <div class="university-name">
+                <h2>PANJAB UNIVERSITY</h2>
+                <h2>CHANDIGARH</h2>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <p>
+                Welcome<br>
+                <strong>{{ user.name }} ({{ user.role }})</strong>
+            </p>
+            <div style="font-size:24px;">👤</div>
+        </div>
+    </header>
+
+   <nav class="main-nav">
+    <a href="/dashboard" class="active">Dashboard</a>
+    <a href="/workflow">Work-Flow</a>
+    <a href="/result">Result</a>
+    <a href="/attendance">Attendance</a>
+    <a href="/syllabus">Syllabus</a>
+    <a href="/docupload">DocUpload</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
+</nav>
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+
+            <div class="profile-header">
+                <div class="profile-icon">👤</div>
+                <h3>{{ user.name }}</h3>
+                <p>{{ user.role }}</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="uni-text">Panjab University</p>
+
+            <div class="divider"></div>
+
+            <ul class="info-list">
+                <li><span>Contact:</span> +91-9876543210</li>
+                <li><span>Email:</span> {{ user.email }}</li>
+                <li><span>DOB:</span> 01-Jan-2000</li>
+                <li><span>Gender:</span> Male</li>
+                <br>
+                <li><span>Father:</span> Mr. Kumar</li>
+                <li><span>Mother:</span> Mrs. Kumar</li>
+                <li><span>Address:</span> Chandigarh, India</li>
+            </ul>
+
+        </aside>
+
+        <main class="content-panel">
+
+            <h2 class="dashboard-title">{{ user.title }}</h2>
+
+            <div class="news-box">
+                <h4>News & Notifications</h4>
+
+                <div class="news-item">
+                    <span>12 FEB 2015</span>
+                    Mid Term Examination FEB 2015 <br>
+                    📄 Download Datesheet
+                </div>
+
+                <div class="news-item">
+                    <span>14 FEB 2015</span>
+                    Upcoming Conference on Steganography
+                </div>
+            </div>
+
+            <div class="action-grid">
+
+                <div class="grid-card" onclick="window.location.href='/workflow'">
+                    <div class="card-icon">🪪</div>
+                    <h4>WORK-FLOW</h4>
+                </div>
+
+                <div class="grid-card" onclick="window.location.href='/result'">
+                    <div class="card-icon">📋</div>
+                    <h4>RESULT</h4>
+                </div>
+
+                <div class="grid-card" onclick="window.location.href='/attendance'">
+                    <div class="card-icon">💬</div>
+                    <h4>ATTENDANCE</h4>
+                </div>
+
+                <div class="grid-card" onclick="window.location.href='/syllabus'">
+                    <div class="card-icon">📚</div>
+                    <h4>SYLLABUS</h4>
+                </div>
+
+                <div class="grid-card" onclick="window.location.href='/docupload'">
+                    <div class="card-icon">📄</div>
+                    <h4>DOCUPLOAD</h4>
+                </div>
+
+                <div class="grid-card" onclick="window.location.href='/settings'">
+                    <div class="card-icon">📝</div>
+                    <h4>SETTINGS</h4>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <footer class="footer">
+        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
+        <p>Powered By C-DAC Mohali</p>
+    </footer>
+
+</body>
+</html>
+

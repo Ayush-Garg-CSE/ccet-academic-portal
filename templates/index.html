@@ -23,13 +23,26 @@
             <div class="login-box">
                 <div class="logo-container">
                     <h3>Panjab University</h3>
-                    <p>UIET Chandigarh</p>
+                    <p>CCET Degree Wing</p>
                 </div>
                 
                 <h2>Sign in to Your Account</h2>
                 
                 <!-- Updated form action to point to Flask backend -->
                 <form action="http://127.0.0.1:5000/login" method="POST">
+                    
+                   
+
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <!-- Changed name to 'email' to match backend -->
+                        <input type="text" id="email" name="email" placeholder="Enter Email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                    </div>
                     
                     <div class="input-group">
                         <label for="role">Select Role</label>
@@ -47,31 +60,19 @@
                             <option value="SO">SO</option>
                         </select>
                     </div>
-
-                    <div class="input-group">
-                        <label for="email">Email</label>
-                        <!-- Changed name to 'email' to match backend -->
-                        <input type="text" id="email" name="email" placeholder="Enter Email" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
-                    </div>
-
                     <button type="submit" class="btn-submit">Sign In</button>
-                    
+                  
                     <div class="form-footer">
                         <a href="#">Forgot password?</a>
                     </div>
+
+                    <div class="footer-login">
+                        C-DAC Mohali © copyright 2026. All Right Reserved.
+                    </div>
                 </form>
             </div>
-            
-            <div class="footer">
-                <p>C-DAC Mohali © copyright 2026. All Right Reserved.</p>
-            </div>
         </div>
-
     </div>
 </body>
 </html>
+         

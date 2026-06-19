@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCET - Notice Admin Center</title>
+    <style>
+        body { 
+            background: #f5f7fa; 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .admin-box { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 400px; 
+            border-top: 5px solid #ff7b00; 
+        }
+        h2 { color: #333; margin-top: 0; margin-bottom: 20px; }
+        label { display: block; margin: 10px 0 5px; color: #666; font-weight: bold; font-size: 13px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: linear-gradient(90deg, #ff7b00, #ff4500); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 20px; 
+        }
+        button:hover { opacity: 0.9; }
+        .back { text-align: center; display: block; margin-top: 15px; color: #777; text-decoration: none; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <h2>📢 Campus Notice Control</h2>
+        <form method="POST" action="/admin/add-notice">
+            <label>Select Posting Date:</label>
+            <input type="date" name="date" required>
+            
+            <label>Department Category:</label>
+            <select name="category">
+                <option value="Academic">Academic</option>
+                <option value="Event">Event</option>
+                <option value="Placement">Placement</option>
+                <option value="General">General</option>
+            </select>
+            
+            <label>Notice Content Announcement:</label>
+            <input type="text" name="title" placeholder="Type notice description here..." required>
+            
+            <button type="submit">Push Live Announcement</button>
+        </form>
+        <a href="/" class="back">← Exit Admin Panel</a>
+    </div>
+
+</body>
+</html>

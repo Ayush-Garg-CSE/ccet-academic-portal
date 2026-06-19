@@ -4,20 +4,32 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+# Helper function to connect to SQLite and return dictionary rows
+def get_db_connection():
+    conn = sqlite3.connect("users.db")
+    conn.row_factory = sqlite3.Row  # Allows accessing columns by name like row['title']
+    return conn
+
+# --- 1. HOME PORTAL ROUTE ---
 @app.route("/")
 def home():
-    return render_template("index.html")
+    conn = get_db_connection()
+    # Fetch all notices sorted by newest ID first
+    db_notices = conn.execute("SELECT * FROM notices ORDER BY id DESC").fetchall()
+    conn.close()
+    
+    # Only pass the latest 3 notices to the front page frosted card
+    return render_template("index.html", latest_notices=db_notices[:3])
 
+# --- 2. LOGIN SYSTEM ---
 @app.route("/login", methods=["POST"])
 def login():
     email = request.form.get("email")
     password = request.form.get("password")
     role = request.form.get("role")
 
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=? AND password=? AND role=?", (email, password, role))
-    user = cursor.fetchone()
+    conn = get_db_connection()
+    user = conn.execute("SELECT * FROM users WHERE email=? AND password=? AND role=?", (email, password, role)).fetchone()
     conn.close()
 
     if user:
@@ -32,13 +44,55 @@ def login():
     else:
         return "Access Denied. Invalid credentials or role."
 
+# --- 3. STUDENT / FACULTY DASHBOARD ---
 @app.route("/dashboard")
 def dashboard():
     user_data = session.get('user_data')
     if not user_data:
-        return redirect("/")  # redirect to login if not logged in
+        return redirect("/")  
     return render_template("dashboard.html", user=user_data)
 
+# --- 4. SEE ALL NOTICES PAGE ---
+@app.route("/all-notices")
+def all_notices():
+    conn = get_db_connection()
+    db_notices = conn.execute("SELECT * FROM notices ORDER BY id DESC").fetchall()
+    conn.close()
+    return render_template("all_notices.html", total_notices=db_notices)
+
+
+# --- 5. AUTOMATED LIVE UPDATES ADMIN PANEL ---
+@app.route("/admin/add-notice", methods=["GET", "POST"])
+def add_notice():
+    if request.method == "POST":
+        date = request.form.get("date")
+        category = request.form.get("category")
+        title = request.form.get("title")
+
+        conn = get_db_connection()
+        
+        # 1. Insert the brand new announcement row
+        conn.execute("INSERT INTO notices (date, title, category) VALUES (?, ?, ?)", (date, title, category))
+        conn.commit()
+        
+        # 2. Check if total notice count exceeds 4
+        db_notices = conn.execute("SELECT id FROM notices ORDER BY id DESC").fetchall()
+        
+        if len(db_notices) > 4:
+            # Gather all IDs beyond the newest 4 and delete them permanently
+            old_ids = [row["id"] for row in db_notices[4:]]
+            for old_id in old_ids:
+                conn.execute("DELETE FROM notices WHERE id = ?", (old_id,))
+            conn.commit()
+            
+        conn.close()
+        return redirect("/") # Redirect back to home to instantly view changes!
+        
+    # If GET request, render the separated admin HTML template file instead
+    return render_template("admin_notice.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
 # -------------------------
 # Workflow page
 # -------------------------

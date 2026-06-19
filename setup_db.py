@@ -13,6 +13,34 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL
 )
 """)
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    # Create the notices table if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            title TEXT NOT NULL,
+            category TEXT NOT NULL
+        )
+    ''')
+    
+    # Check if empty, populate original baseline notices if needed
+    cursor.execute("SELECT COUNT(*) FROM notices")
+    if cursor.fetchone()[0] == 0:
+        initial_notices = [
+            ("2026-06-19", "End Semester Examination Schedule Out", "Academic"),
+            ("2026-06-18", "Registration open for Tech-Fest 2026", "Event"),
+            ("2026-06-15", "Hostel Mess Timings Updated for Summers", "General"),
+            ("2026-06-10", "Placement Drive: Microsoft visiting campus next month", "Placement")
+        ]
+        cursor.executemany("INSERT INTO notices (date, title, category) VALUES (?, ?, ?)", initial_notices)
+        conn.commit()
+    conn.close()
+
+# Initialize the table structure
+init_db()
 
 # insert sample data with all roles (safe insert)
 users_data = [

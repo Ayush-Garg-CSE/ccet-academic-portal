@@ -4,75 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eAkadamik | UIET Chandigarh</title>
-    <link rel="stylesheet" href="../static/style.css?v=3">
+    <link rel="stylesheet" href="../static/style.css?v=4">
 </head>
 <body class="login-page">
-    <div class="login-container">
+
+    <div class="portal-main-container">
         
-        <div class="notices-section">
-            <h2>Updates & Notices</h2>
-            <ul class="notice-list">
-                <li><span class="date">Feb 16</span> Examination Fee Notice MAY 2026 session (REVISED)</li>
-                <li><span class="date">Jul 14</span> Summer training guidelines and industrial requirements.</li>
-                <li><span class="date">Jun 12</span> 2nd Sessional notifications and timetables.</li>
-            </ul>
-            <a href="#" class="view-all">View all updates</a>
+        <div class="portal-notice-side">
+            <h2>Latest Notices & Updates</h2>
+            
+            <div class="notices-wrapper">
+                {% for notice in latest_notices %}
+                <div class="portal-notice-card">
+                    <span class="portal-notice-meta">
+                        📅 {{ notice.date }} | <span class="portal-notice-category">[{{ notice.category }}]</span>
+                    </span>
+                    <p class="portal-notice-title">{{ notice.title }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <a href="/all-notices" class="portal-see-all-btn">See All Updates →</a>
         </div>
 
-        <div class="login-section">
-            <div class="login-box">
-                <div class="logo-container">
-                    <h3>Panjab University</h3>
-                    <p>CCET Degree Wing</p>
+        <div class="portal-login-side">
+            <div class="logo-container">
+                <h3>Panjab University</h3>
+                <p class="sub-branch">CCET Chandigarh</p>
+            </div>
+            
+            <h2>Sign in to Your Account</h2>
+            
+            <form action="http://127.0.0.1:5000/login" method="POST">
+                
+                <div class="portal-input-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" name="email" placeholder="Enter Email" required>
+                </div>
+
+                <div class="portal-input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter Password" required>
                 </div>
                 
-                <h2>Sign in to Your Account</h2>
+                <div class="portal-input-group">
+                    <label for="role">Select Role</label>
+                    <select id="role" name="role">
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Branch Administrator">Branch Administrator</option>
+                        <option value="Super Administrator">Super Administrator</option>
+                        <option value="Department Representative">Department Representative</option>
+                        <option value="Result Unit">Result Unit</option>
+                        <option value="Assistant Examination">Assistant Examination</option>
+                        <option value="Nodal Officer">Nodal Officer</option>
+                        <option value="Branch Assistant">Branch Assistant</option>
+                        <option value="Academic Clerk">Academic Clerk</option>
+                        <option value="SO">SO</option>
+                    </select>
+                </div>
                 
-                <!-- Updated form action to point to Flask backend -->
-                <form action="http://127.0.0.1:5000/login" method="POST">
-                    
-                   
+                <button type="submit" class="portal-signin-btn">Sign In</button>
+              
+                <div class="form-footer">
+                    <a href="#" class="portal-forgot-pass">Forgot password?</a>
+                </div>
 
-                    <div class="input-group">
-                        <label for="email">Email</label>
-                        <!-- Changed name to 'email' to match backend -->
-                        <input type="text" id="email" name="email" placeholder="Enter Email" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="role">Select Role</label>
-                        <select id="role" name="role">
-                            <option value="Student">Student</option>
-                            <option value="Faculty">Faculty</option>
-                            <option value="Branch Administrator">Branch Administrator</option>
-                            <option value="Super Administrator">Super Administrator</option>
-                            <option value="Department Representative">Department Representative</option>
-                            <option value="Result Unit">Result Unit</option>
-                            <option value="Assistant Examination">Assistant Examination</option>
-                            <option value="Nodal Officer">Nodal Officer</option>
-                            <option value="Branch Assistant">Branch Assistant</option>
-                            <option value="Academic Clerk">Academic Clerk</option>
-                            <option value="SO">SO</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">Sign In</button>
-                  
-                    <div class="form-footer">
-                        <a href="#">Forgot password?</a>
-                    </div>
-
-                    <div class="footer-login">
-                        C-DAC Mohali © copyright 2026. All Right Reserved.
-                    </div>
-                </form>
-            </div>
+                <div class="footer-login">
+                    C-DAC Mohali © copyright 2026. All Right Reserved.
+                </div>
+            </form>
         </div>
+
     </div>
+
 </body>
 </html>
-         

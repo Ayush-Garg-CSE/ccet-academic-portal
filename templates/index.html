@@ -36,7 +36,25 @@
             <h2>Sign in to Your Account</h2>
             
             <form action="http://127.0.0.1:5000/login" method="POST">
-                
+               
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div id="automatic-flash-container">
+                            {% for category, message in messages %}
+                                {% if category == 'login_error' %}
+                                    <div style="background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; color: #e74c3c; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; font-weight: 500;">
+                                        ⚠️ {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div style="background: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; color: #2ecc71; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; font-weight: 500;">
+                                        ✓ {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
                 <div class="portal-input-group">
                     <label for="email">Email</label>
                     <input type="text" id="email" name="email" placeholder="Enter Email" required>
@@ -67,7 +85,7 @@
                 <button type="submit" class="portal-signin-btn">Sign In</button>
               
                 <div class="form-footer">
-                    <a href="#" class="portal-forgot-pass">Forgot password?</a>
+                    <a href="/forgot_password" class="forgot-link">Forgot Password?</a>
                 </div>
 
                 <div class="footer-login">
@@ -77,6 +95,20 @@
         </div>
 
     </div>
+
+    <script>
+        setTimeout(function() {
+            var alertBox = document.getElementById('automatic-flash-container');
+            if (alertBox) {
+                alertBox.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+                alertBox.style.opacity = "0";
+                alertBox.style.transform = "国民scale(0.95)";
+                setTimeout(function() {
+                    alertBox.remove();
+                }, 600); 
+            }
+        }, 4000); // 4000ms = 4 seconds display time
+    </script>
 
 </body>
 </html>

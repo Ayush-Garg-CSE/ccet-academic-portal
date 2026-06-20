@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, flash
+from flask import Flask, request, render_template, session, redirect, flash, url_for
 import sqlite3
 
 app = Flask(__name__)
@@ -42,7 +42,10 @@ def login():
         session['user_data'] = user_data
         return render_template("dashboard.html", user=user_data)
     else:
-        return "Access Denied. Invalid credentials or role."
+        # 1. Flash the error message into the session
+        flash("Access Denied. Invalid credentials or role.", "login_error")
+        # 2. Redirect back to the homepage so they stay on the same screen
+        return redirect(url_for('home'))
 
 # --- 3. STUDENT / FACULTY DASHBOARD ---
 @app.route("/dashboard")
@@ -91,8 +94,49 @@ def add_notice():
     # If GET request, render the separated admin HTML template file instead
     return render_template("admin_notice.html")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# --- 6. FORGOT PASSWORD: STEP 1 (EMAIL VERIFICATION) ---
+@app.route("/forgot-password", methods=["GET", "POST"])
+@app.route("/forgot_password", methods=["GET", "POST"]) # Handles both dash and underscore versions!
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+        
+        conn = get_db_connection()
+        user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        conn.close()
+        
+        if user:
+            session['reset_email'] = email
+            return redirect(url_for('reset_password'))
+        else:
+            flash("This email is not registered in our campus database.", "login_error")
+            return redirect(url_for('forgot_password'))
+            
+    return render_template("forgot_password.html")
+
+
+# --- 7. FORGOT PASSWORD: STEP 2 (DATABASE OVERWRITE) ---
+@app.route("/reset-password", methods=["GET", "POST"])
+@app.route("/reset_password", methods=["GET", "POST"]) # Handles both dash and underscore versions!
+def reset_password():
+    if 'reset_email' not in session:
+        return redirect(url_for('home'))
+        
+    if request.method == "POST":
+        new_password = request.form.get("password")
+        email = session['reset_email']
+        
+        conn = get_db_connection()
+        conn.execute("UPDATE users SET password = ? WHERE email = ?", (new_password, email))
+        conn.commit()
+        conn.close()
+        
+        session.pop('reset_email', None)
+        flash("Password updated successfully! Please login with your new credentials.", "success")
+        return redirect(url_for('home'))
+        
+    return render_template("reset_password.html")
+
 # -------------------------
 # Workflow page
 # -------------------------
@@ -261,7 +305,7 @@ def syllabus():
     if not user_data:
         return redirect("/")
 
-    action = request.args.get("action")   # <-- capture ?action=view
+    action = request.args.get("action")   
     syllabus_data = []
 
     if action == "view":
@@ -385,6 +429,7 @@ def settings():
         action=action,
         profile=profile_info
     )
+
 #-------
 #Log Out
 #-------
@@ -393,7 +438,8 @@ def logout():
     session.clear()
     flash("Logged out successfully!", "success")
     return redirect("/")
-                    
+
+# --- THE EXECUTION CONTEXT BLOCK BELONGS AT THE VERY END ---
 if __name__ == "__main__":
     app.run(debug=True)
 

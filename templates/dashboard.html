@@ -23,24 +23,24 @@
         </div>
 
         <div class="header-right">
-            <p>
-                Welcome<br>
+            <div class="user-welcome">
+                Welcome <br>
                 <strong>{{ user.name }} ({{ user.role }})</strong>
-            </p>
+            </div>
             <div style="font-size:24px;">👤</div>
         </div>
     </header>
 
-   <nav class="main-nav">
-    <a href="/dashboard" class="active">Dashboard</a>
-    <a href="/workflow">Work-Flow</a>
-    <a href="/result">Result</a>
-    <a href="/attendance">Attendance</a>
-    <a href="/syllabus">Syllabus</a>
-    <a href="/docupload">DocUpload</a>
-    <a href="/settings">Settings</a>
-    <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
-</nav>
+    <nav class="main-nav">
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/workflow">Work-Flow</a>
+        <a href="/result">Result</a>
+        <a href="/attendance">Attendance</a>
+        <a href="/syllabus">Syllabus</a>
+        <a href="/docupload">DocUpload</a>
+        <a href="/settings">Settings</a>
+        <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
+    </nav>
 
     <div class="dashboard-container">
 
@@ -58,35 +58,38 @@
 
             <div class="divider"></div>
 
-            <ul class="info-list">
-                <li><span>Contact:</span> +91-9876543210</li>
-                <li><span>Email:</span> {{ user.email }}</li>
-                <li><span>DOB:</span> 01-Jan-2000</li>
-                <li><span>Gender:</span> Male</li>
-                <br>
-                <li><span>Father:</span> Mr. Kumar</li>
-                <li><span>Mother:</span> Mrs. Kumar</li>
-                <li><span>Address:</span> Chandigarh, India</li>
-            </ul>
+            <div class="sidebar-profile-details">
+                <p><strong>Contact:</strong> {{ user.contact if user.contact else '' }}</p>
+                <p><strong>Email:</strong> {{ user.email if user.email else '' }}</p>
+                <p><strong>DOB:</strong> {{ user.dob if user.dob else '' }}</p>
+                <p><strong>Gender:</strong> {{ user.gender if user.gender else '' }}</p>
+                <hr>
+                <p><strong>Father:</strong> {{ user.father_name if user.father_name else '' }}</p>
+                <p><strong>Mother:</strong> {{ user.mother_name if user.mother_name else '' }}</p>
+                <p><strong>Address:</strong> {{ user.address if user.address else '' }}</p>
+            </div>
 
         </aside>
 
         <main class="content-panel">
 
-            <h2 class="dashboard-title">{{ user.title }}</h2>
+            <h2 class="dashboard-title">{{ user.role }} Dashboard</h2>
 
-            <div class="news-box">
-                <h4>News & Notifications</h4>
-
-                <div class="news-item">
-                    <span>12 FEB 2015</span>
-                    Mid Term Examination FEB 2015 <br>
-                    📄 Download Datesheet
+            <div class="news-section">
+                <h3>News & Notifications</h3>
+                <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 12px;">
+                
+                <div class="notice-item" style="margin-bottom: 15px;">
+                    <span class="notice-date" style="color: #2ecc71; font-size: 0.85em; font-weight: bold;">🔴 LIVE CAMPUS SYSTEM</span>
+                    <p class="notice-title" style="margin: 2px 0; color: #333; font-weight: 500;">Welcome to the updated e-Akādamik Portal instance.</p>
+                    <small class="notice-category" style="color: #7f8c8d; font-style: italic;">[All core operational infrastructure loops are active for current session state]</small>
                 </div>
+                <hr style="border-top: 1px dotted #ccc;">
 
-                <div class="news-item">
-                    <span>14 FEB 2015</span>
-                    Upcoming Conference on Steganography
+                <div class="notice-item" style="margin-bottom: 15px;">
+                    <span class="notice-date" style="color: #e67e22; font-size: 0.85em; font-weight: bold;">📅 ACADEMIC CALENDAR</span>
+                    <p class="notice-title" style="margin: 2px 0; color: #333;">Upcoming Evaluation Cycle and Performance Sheet Generation</p>
+                    <small class="notice-category" style="color: #7f8c8d; font-style: italic;">[Please verify individual routing requirements using the options below]</small>
                 </div>
             </div>
 
@@ -135,4 +138,3 @@
 
 </body>
 </html>
-

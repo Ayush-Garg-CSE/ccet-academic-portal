@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eAkadamik | {{ user.title }}</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <title>eAkadamik | {{ user.title if user.title else 'Dashboard' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body class="dashboard-page">
@@ -15,7 +15,6 @@
                 <h1>e-Akadamik</h1>
                 <p>UNIFIED ACADEMIC SYSTEM</p>
             </div>
-
             <div class="university-name">
                 <h2>PANJAB UNIVERSITY</h2>
                 <h2>CHANDIGARH</h2>
@@ -33,11 +32,36 @@
 
     <nav class="main-nav">
         <a href="/dashboard" class="active">Dashboard</a>
-        <a href="/workflow">Work-Flow</a>
-        <a href="/result">Result</a>
-        <a href="/attendance">Attendance</a>
-        <a href="/syllabus">Syllabus</a>
-        <a href="/docupload">DocUpload</a>
+        
+        {% if user.is_student %}
+            <a href="/examination">Examination</a>
+            <a href="/result">Result</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/syllabus">Syllabus</a>
+            <a href="/docupload">DocUpload</a>
+        {% endif %}
+
+        {% if user.is_faculty %}
+            <a href="/workflow">Work-Flow</a>
+            <a href="/result">Result</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/syllabus">Syllabus</a>
+        {% endif %}
+
+        {% if user.is_exam_unit %}
+            <a href="/exam-control/datesheets">Datesheets</a>
+            <a href="/exam-control/discrepancies">Roster Controls</a>
+            <a href="/result">Result Auditing</a>
+            <a href="/syllabus">Syllabus View</a>
+        {% endif %}
+
+        {% if user.is_admin_officer %}
+            <a href="/workflow">File Tracking</a>
+            <a href="/admin/manage-notices">Manage Notices</a>
+            <a href="/admin/verify-records">Verify Records</a>
+            <a href="/syllabus">Syllabus View</a>
+        {% endif %}
+
         <a href="/settings">Settings</a>
         <a href="/logout" style="margin-left: auto; padding-right: 30px;">Logout</a>
     </nav>
@@ -45,7 +69,6 @@
     <div class="dashboard-container">
 
         <aside class="sidebar">
-
             <div class="profile-header">
                 <div class="profile-icon">👤</div>
                 <h3>{{ user.name }}</h3>
@@ -53,9 +76,7 @@
             </div>
 
             <div class="divider"></div>
-
             <p class="uni-text">Panjab University</p>
-
             <div class="divider"></div>
 
             <div class="sidebar-profile-details">
@@ -63,19 +84,29 @@
                 <p><strong>Email:</strong> {{ user.email if user.email else '' }}</p>
                 <p><strong>DOB:</strong> {{ user.dob if user.dob else '' }}</p>
                 <p><strong>Gender:</strong> {{ user.gender if user.gender else '' }}</p>
-                <hr>
+                <hr style="border: 0; border-top: 1px dashed #ddd; margin: 10px 0;">
                 <p><strong>Father:</strong> {{ user.father_name if user.father_name else '' }}</p>
                 <p><strong>Mother:</strong> {{ user.mother_name if user.mother_name else '' }}</p>
                 <p><strong>Address:</strong> {{ user.address if user.address else '' }}</p>
             </div>
-
         </aside>
 
         <main class="content-panel">
-
             <h2 class="dashboard-title">{{ user.role }} Dashboard</h2>
 
-            <div class="news-section">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-container" style="margin-bottom: 20px;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" style="padding: 12px 20px; border-radius: 6px; font-weight: 600; margin-bottom: 10px; {% if category == 'error' %} background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; {% else %} background: #d4edda; color: #155724; border: 1px solid #c3e6cb; {% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="news-section" style="margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea;">
                 <h3>News & Notifications</h3>
                 <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 12px;">
                 
@@ -84,9 +115,9 @@
                     <p class="notice-title" style="margin: 2px 0; color: #333; font-weight: 500;">Welcome to the updated e-Akādamik Portal instance.</p>
                     <small class="notice-category" style="color: #7f8c8d; font-style: italic;">[All core operational infrastructure loops are active for current session state]</small>
                 </div>
-                <hr style="border-top: 1px dotted #ccc;">
+                <hr style="border-top: 1px dotted #ccc; margin: 15px 0;">
 
-                <div class="notice-item" style="margin-bottom: 15px;">
+                <div class="notice-item">
                     <span class="notice-date" style="color: #e67e22; font-size: 0.85em; font-weight: bold;">📅 ACADEMIC CALENDAR</span>
                     <p class="notice-title" style="margin: 2px 0; color: #333;">Upcoming Evaluation Cycle and Performance Sheet Generation</p>
                     <small class="notice-category" style="color: #7f8c8d; font-style: italic;">[Please verify individual routing requirements using the options below]</small>
@@ -95,40 +126,93 @@
 
             <div class="action-grid">
 
-                <div class="grid-card" onclick="window.location.href='/workflow'">
-                    <div class="card-icon">🪪</div>
-                    <h4>WORK-FLOW</h4>
-                </div>
+                {% if user.is_student %}
+                    <div class="grid-card" onclick="window.location.href='/examination'">
+                        <div class="card-icon">📝</div>
+                        <h4>EXAMINATION</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/result'">
+                        <div class="card-icon">📋</div>
+                        <h4>RESULT</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/attendance'">
+                        <div class="card-icon">💬</div>
+                        <h4>ATTENDANCE</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/syllabus'">
+                        <div class="card-icon">📚</div>
+                        <h4>SYLLABUS</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/docupload'">
+                        <div class="card-icon">📄</div>
+                        <h4>DOCUPLOAD</h4>
+                    </div>
+                {% endif %}
 
-                <div class="grid-card" onclick="window.location.href='/result'">
-                    <div class="card-icon">📋</div>
-                    <h4>RESULT</h4>
-                </div>
+                {% if user.is_faculty %}
+                    <div class="grid-card" onclick="window.location.href='/workflow'">
+                        <div class="card-icon">🪪</div>
+                        <h4>WORK-FLOW</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/result'">
+                        <div class="card-icon">📋</div>
+                        <h4>RESULT</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/attendance'">
+                        <div class="card-icon">💬</div>
+                        <h4>ATTENDANCE</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/syllabus'">
+                        <div class="card-icon">📚</div>
+                        <h4>SYLLABUS</h4>
+                    </div>
+                {% endif %}
 
-                <div class="grid-card" onclick="window.location.href='/attendance'">
-                    <div class="card-icon">💬</div>
-                    <h4>ATTENDANCE</h4>
-                </div>
+                {% if user.is_exam_unit %}
+                    <div class="grid-card" onclick="window.location.href='/exam-control/datesheets'">
+                        <div class="card-icon">📅</div>
+                        <h4>DATESHEETS</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/exam-control/discrepancies'">
+                        <div class="card-icon">📈</div>
+                        <h4>ROSTER MASKS</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/result'">
+                        <div class="card-icon">📋</div>
+                        <h4>AUDIT RESULTS</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/syllabus'">
+                        <div class="card-icon">📚</div>
+                        <h4>SCHEMES</h4>
+                    </div>
+                {% endif %}
 
-                <div class="grid-card" onclick="window.location.href='/syllabus'">
-                    <div class="card-icon">📚</div>
-                    <h4>SYLLABUS</h4>
-                </div>
-
-                <div class="grid-card" onclick="window.location.href='/docupload'">
-                    <div class="card-icon">📄</div>
-                    <h4>DOCUPLOAD</h4>
-                </div>
+                {% if user.is_admin_officer %}
+                    <div class="grid-card" onclick="window.location.href='/workflow'">
+                        <div class="card-icon">🪪</div>
+                        <h4>WORK-FLOW</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/admin/manage-notices'">
+                        <div class="card-icon">📢</div>
+                        <h4>POST NOTICE</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/admin/verify-records'">
+                        <div class="card-icon">📑</div>
+                        <h4>VERIFY RECORDS</h4>
+                    </div>
+                    <div class="grid-card" onclick="window.location.href='/syllabus'">
+                        <div class="card-icon">📚</div>
+                        <h4>SYLLABUS</h4>
+                    </div>
+                {% endif %}
 
                 <div class="grid-card" onclick="window.location.href='/settings'">
-                    <div class="card-icon">📝</div>
+                    <div class="card-icon">⚙️</div>
                     <h4>SETTINGS</h4>
                 </div>
 
             </div>
-
         </main>
-
     </div>
 
     <footer class="footer">

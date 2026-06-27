@@ -8,8 +8,8 @@
     <style>
         .tab-sidebar-btn { display: block; width: 100%; background: #24a0ed; color: white; border: none; padding: 10px 12px; margin-bottom: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9em; }
         .tab-sidebar-btn.secondary { background: #17a2b8; }
-        .form-section-title { background: #17a2b8; color: white; padding: 8px 12px; font-size: 1.1em; font-weight: 500; border-radius: 4px 4px 0 0; margin-bottom: 15px; }
-        .details-box { border: 1px solid #ddd; border-radius: 4px; padding: 20px; background: #fff; margin-bottom: 20px; }
+        .form-section-title { background: #17a2b8; color: white; padding: 8px 12px; font-size: 1.1em; font-weight: 500; border-radius: 4px 4px 0 0; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
+        .details-box { border: 1px solid #ddd; border-radius: 4px; padding: 20px; background: #fff; margin-bottom: 20px; width: 100%; box-sizing: border-box; }
         .form-grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
         .form-group-inline { display: flex; align-items: center; }
         .form-group-inline label { width: 120px; font-weight: 500; color: #333; }
@@ -25,7 +25,11 @@
         .subject-table td { border: 1px solid #ddd; padding: 10px; font-size: 0.9em; color: #333; }
         .subject-table tr:nth-child(even) { background-color: #fff8ee; }
         
-        /* Entire block starts completely hidden */
+        #registration-form-container {
+            display: none;
+            width: 100%;
+        }
+
         #hidden-examination-payload {
             display: none;
         }
@@ -85,7 +89,7 @@
             </div>
             <div class="divider"></div>
             <div style="padding: 10px 0;">
-                <button class="tab-sidebar-btn" onclick="resetFormView()">Registration Form</button>
+                <button class="tab-sidebar-btn" onclick="showRegistrationForm()">Registration Form</button>
                 <button class="tab-sidebar-btn secondary" onclick="alert('Kindly complete Profile configuration rules before requesting formal certificates.')">Request For Provisional / Character Certificate</button>
             </div>
         </aside>
@@ -96,97 +100,99 @@
             {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
                 {% if messages %}
                     {% for msg in messages %}
-                        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.95em;">
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.95em; width: 100%; box-sizing: border-box;">
                             {{ msg }}
                         </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
-            <form action="/examination" method="POST" enctype="multipart/form-data" class="details-box">
-                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1em; color: #333;">Student Details (Auto-Filled)</h3>
-                
-                <div class="form-grid-row">
-                    <div class="form-group-inline">
-                        <label>Department</label>
-                        <input type="text" id="department-display" name="department" value="{{ user.branch }}" readonly>
-                    </div>
-                    <div class="form-group-inline">
-                        <label>Course</label>
-                        <input type="text" name="course" value="{{ user.course }}" readonly>
-                    </div>
-                </div>
-
-                <div class="form-grid-row">
-                    <div class="form-group-inline">
-                        <label>Batch</label>
-                        <input type="text" id="batch-display" name="batch" value="{{ user.batch }}" readonly>
-                    </div>
-                    <div class="form-group-inline">
-                        <label>Semester</label>
-                        <select id="semester-selector" name="semester" onchange="clearSubjectPayload()">
-                            <option value="" selected disabled>-- Select Semester --</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="btn-container-row">
-                    <button type="button" class="action-btn btn-primary" onclick="revealSubjects()">View Subjects</button>
-                    <button type="button" class="action-btn btn-success" onclick="alert('Admit card payload is compiling. Please check back after form processing approval.')">Download Admit Card</button>
-                    <button type="button" class="action-btn btn-secondary" onclick="resetFormView()">Cancel</button>
-                </div>
-
-                <div id="hidden-examination-payload">
-                    <table class="subject-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 10%;">#</th>
-                                <th style="width: 50%;">Subject Name</th>
-                                <th style="width: 20%;">Subject Type</th>
-                                <th style="width: 20%;">Credits</th>
-                            </tr>
-                        </thead>
-                        <tbody id="subject-dynamic-body">
-                            </tbody>
-                    </table>
-
-                    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-                        <h3 style="margin-top: 0; font-size: 1em; color: #333;">Fee Details</h3>
-                        <div class="form-grid-row" style="grid-template-columns: 1fr 1fr 1fr;">
-                            <div class="form-group-inline">
-                                <label style="width: 80px;">Amount</label>
-                                <input type="text" name="amount" value="2500" readonly>
-                            </div>
-                            <div class="form-group-inline">
-                                <label style="width: 110px;">Transaction ID</label>
-                                <input type="text" name="transaction_id" placeholder="Enter Reference Code" required>
-                            </div>
-                            <div class="form-group-inline">
-                                <label style="width: 100px;">Receipt Date</label>
-                                <input type="date" name="receipt_date" required>
-                            </div>
+            <div id="registration-form-container">
+                <form action="/examination" method="POST" enctype="multipart/form-data" class="details-box">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1em; color: #333;">Student Details (Auto-Filled)</h3>
+                    
+                    <div class="form-grid-row">
+                        <div class="form-group-inline">
+                            <label>Department</label>
+                            <input type="text" id="department-display" name="department" value="{{ user.branch }}" readonly>
                         </div>
-
-                        <h3 style="margin-top: 20px; font-size: 1em; color: #333;">File Upload</h3>
-                        <div class="form-group-inline" style="width: 50%;">
-                            <label style="width: 130px;">Transaction Proof</label>
-                            <input type="file" name="fee_proof" required>
+                        <div class="form-group-inline">
+                            <label>Course</label>
+                            <input type="text" name="course" value="{{ user.course }}" readonly>
                         </div>
                     </div>
 
-                    <div style="text-align: center; margin-top: 30px;">
-                        <button type="submit" class="action-btn btn-primary" style="background: #17a2b8; padding: 10px 25px; font-size: 1em;">Submit Form</button>
+                    <div class="form-grid-row">
+                        <div class="form-group-inline">
+                            <label>Batch</label>
+                            <input type="text" id="batch-display" name="batch" value="{{ user.batch }}" readonly>
+                        </div>
+                        <div class="form-group-inline">
+                            <label>Semester</label>
+                            <select id="semester-selector" name="semester" onchange="clearSubjectPayload()">
+                                <option value="" selected disabled>-- Select Semester --</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
+
+                    <div class="btn-container-row">
+                        <button type="button" class="action-btn btn-primary" onclick="revealSubjects()">View Subjects</button>
+                        <button type="button" class="action-btn btn-success" onclick="alert('Admit card payload is compiling. Please check back after form processing approval.')">Download Admit Card</button>
+                        <button type="button" class="action-btn btn-secondary" onclick="resetFormView()">Cancel</button>
+                    </div>
+
+                    <div id="hidden-examination-payload">
+                        <table class="subject-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 50%;">Subject Name</th>
+                                    <th style="width: 20%;">Subject Type</th>
+                                    <th style="width: 20%;">Credits</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subject-dynamic-body">
+                                </tbody>
+                        </table>
+
+                        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                            <h3 style="margin-top: 0; font-size: 1em; color: #333;">Fee Details</h3>
+                            <div class="form-grid-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                                <div class="form-group-inline">
+                                    <label style="width: 80px;">Amount</label>
+                                    <input type="text" name="amount" value="2500" readonly>
+                                </div>
+                                <div class="form-group-inline">
+                                    <label style="width: 110px;">Transaction ID</label>
+                                    <input type="text" name="transaction_id" placeholder="Enter Reference Code" required>
+                                </div>
+                                <div class="form-group-inline">
+                                    <label style="width: 100px;">Receipt Date</label>
+                                    <input type="date" name="receipt_date" required>
+                                </div>
+                            </div>
+
+                            <h3 style="margin-top: 20px; font-size: 1em; color: #333;">File Upload</h3>
+                            <div class="form-group-inline" style="width: 50%;">
+                                <label style="width: 130px;">Transaction Proof</label>
+                                <input type="file" name="fee_proof" required>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button type="submit" class="action-btn btn-primary" style="background: #17a2b8; padding: 10px 25px; font-size: 1em;">Submit Form</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </main>
     </div>
 
@@ -196,6 +202,11 @@
     </footer>
 
     <script>
+        function showRegistrationForm() {
+            document.getElementById('registration-form-container').style.display = 'block';
+            clearSubjectPayload();
+        }
+
         function clearSubjectPayload() {
             document.getElementById('hidden-examination-payload').style.display = 'none';
             document.getElementById('subject-dynamic-body').innerHTML = '';
@@ -210,7 +221,6 @@
                 return;
             }
 
-            // Maps directly to the backend API via query string params
             fetch(`/api/fetch-examination-matrix?branch=${encodeURIComponent(branch)}&semester=${sem}`)
                 .then(response => response.json())
                 .then(data => {
@@ -230,7 +240,6 @@
                                 </tr>`;
                         });
                     }
-                    // Unveils table grid layout smoothly
                     document.getElementById('hidden-examination-payload').style.display = 'block';
                 })
                 .catch(err => {
@@ -242,6 +251,7 @@
         function resetFormView() {
             document.getElementById('semester-selector').selectedIndex = 0;
             clearSubjectPayload();
+            document.getElementById('registration-form-container').style.display = 'none';
         }
     </script>
 </body>

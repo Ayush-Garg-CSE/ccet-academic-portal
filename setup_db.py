@@ -17,6 +17,25 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS exam_submissions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        student_email TEXT NOT NULL,
+        branch TEXT NOT NULL,
+        semester INTEGER NOT NULL,
+        batch TEXT NOT NULL,
+        course TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        transaction_id TEXT NOT NULL UNIQUE,
+        receipt_date TEXT NOT NULL,
+        receipt_filename TEXT NOT NULL,
+        status TEXT DEFAULT 'Pending',
+        submission_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+""")
+
 def init_db():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()

@@ -166,7 +166,8 @@ def reset_password():
         
     return render_template("reset_password.html")
 
-# --- 8. STUDENT REQUISITION: EXAMINATION PORTAL ---
+
+# 8.--- STUDENT REQUISITION: EXAMINATION PORTAL WITH ONE-TIME ALERTS ---
 @app.route("/examination", methods=["GET", "POST"])
 def examination():
     user_data = session.get('user_data')
@@ -174,31 +175,94 @@ def examination():
         flash("Access Restricted: Section reserved for student workspaces.", "error")
         return redirect(url_for('dashboard'))
         
-    # Inject fallback dummy defaults for autofill placeholders if missing from database user rows
-    if 'branch' not in user_data:
-        user_data['branch'] = "Computer Science & Engineering"
-    if 'batch' not in user_data:
-        user_data['batch'] = "2025-2029"
-    if 'course' not in user_data:
-        user_data['course'] = "B.E."
+    if 'branch' not in user_data: user_data['branch'] = "Computer Science & Engineering"
+    if 'batch' not in user_data: user_data['batch'] = "2025-2029"
+    if 'course' not in user_data: user_data['course'] = "B.E."
     session['user_data'] = user_data
+
+    conn = get_db_connection()
 
     if request.method == "POST":
         semester = request.form.get("semester")
+        amount = request.form.get("amount")
+        transaction_id = request.form.get("transaction_id")
+        receipt_date = request.form.get("receipt_date")
         file = request.files.get("fee_proof")
         
-        # Process structural document attachments into dedicated storage targets
-        if file and file.filename != '':
-            filename = secure_filename(file.filename)
+        if file and file.filename != '' and transaction_id:
+            from werkzeug.utils import secure_filename
+            filename = secure_filename(f"{user_data['name']}_sem{semester}_{file.filename}")
             receipts_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'receipts')
-            os.makedirs(receipts_folder, exist_ok=True) # Ensure receipts subfolder exists
-            
+            os.makedirs(receipts_folder, exist_ok=True)
             file.save(os.path.join(receipts_folder, filename))
             
-        flash(f"Success! Requisition for Semester {semester} Exam successfully registered and routed to the Examination Unit.", "success")
-        return redirect(url_for('examination'))
+            try:
+                conn.execute("""
+                    INSERT INTO exam_submissions 
+                    (user_id, student_email, branch, semester, batch, course, amount, transaction_id, receipt_date, receipt_filename, status, notification_seen)
+                    VALUES ((SELECT id FROM users WHERE email=?), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 1)
+                """, (user_data['email'], user_data['email'], user_data['branch'], int(semester), user_data['batch'], user_data['course'], int(amount), transaction_id, receipt_date, filename))
+                conn.commit()
+                flash(f"Success! Requisition for Semester {semester} Exam successfully registered.", "success")
+            except Exception as e:
+                flash("Submission Failed: Transaction ID already uploaded.", "error")
+            finally:
+                conn.close()
+            return redirect(url_for('examination'))
+            
+    # --- ONE-TIME NOTIFICATION CHECK ENGINE ---
+    unread_decision = conn.execute("""
+        SELECT id, semester, status 
+        FROM exam_submissions 
+        WHERE student_email = ? AND notification_seen = 0 AND status IN ('Approved', 'Rejected')
+    """, (user_data['email'],)).fetchone()
+    
+    if unread_decision:
+        if unread_decision['status'] == 'Approved':
+            flash(f"🎉 Your examination form submission for Semester {unread_decision['semester']} has been APPROVED by the Administration!", "success")
+        else:
+            flash(f"❌ Your examination form submission for Semester {unread_decision['semester']} was REJECTED. Please re-verify fee proof details.", "error")
+            
+        conn.execute("UPDATE exam_submissions SET notification_seen = 1 WHERE id = ?", (unread_decision['id'],))
+        conn.commit()
+
+    submission_history = conn.execute("SELECT semester, status FROM exam_submissions WHERE student_email = ?", (user_data['email'],)).fetchall()
+    conn.close()
+
+    status_map = {str(row['semester']): row['status'] for row in submission_history}
+    return render_template("examination.html", user=user_data, status_map=status_map)
+
+
+# --- 8b. CLEAN & SEPERATED ADMIN SUBMISSION VERIFICATION PANEL ---
+@app.route("/admin/verify-submissions", methods=["GET", "POST"])
+def admin_verify_submissions():
+    conn = get_db_connection()
+
+    if request.method == "POST":
+        submission_id = request.form.get("submission_id")
+        action = request.form.get("action")  # 'Approved' or 'Rejected'
         
-    return render_template("examination.html", user=user_data)
+        conn.execute("""
+            UPDATE exam_submissions 
+            SET status = ?, notification_seen = 0 
+            WHERE id = ?
+        """, (action, submission_id))
+        conn.commit()
+        flash(f"Submission record successfully processed.", "success")
+        return redirect(url_for('admin_verify_submissions'))
+
+    # ONLY fetch 'Pending' submissions so completed ones disappear from the queue instantly!
+    submissions = conn.execute("""
+        SELECT id, student_email, branch, semester, course, amount, transaction_id, receipt_date, receipt_filename, status, submission_timestamp 
+        FROM exam_submissions 
+        WHERE status = 'Pending'
+        ORDER BY submission_timestamp DESC
+    """).fetchall()
+    conn.close()
+
+    user_data = session.get('user_data', {"name": "Developer Mode", "role": "Administrator"})
+    return render_template("admin_verify.html", user=user_data, submissions=submissions)
+
 
 # --- NEW ADDITION: EXAMINATION MATRIX DATA RETRIEVAL API ---
 @app.route("/api/fetch-examination-matrix", methods=["GET"])
@@ -209,7 +273,6 @@ def fetch_examination_matrix():
     if not branch or not semester:
         return jsonify({"subjects": [], "error": "Missing selection criteria attributes"}), 400
         
-    # Standardize incoming shortcut naming rules to match our setup_db mapping tables
     if branch == "CSE":
         branch = "Computer Science & Engineering"
     elif branch == "Mechanical":
@@ -218,7 +281,6 @@ def fetch_examination_matrix():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Selecting columns matching our new schema architecture
     cursor.execute("""
         SELECT subject, subject_type, credits 
         FROM syllabus 
@@ -228,7 +290,6 @@ def fetch_examination_matrix():
     rows = cursor.fetchall()
     conn.close()
     
-    # Restructure matrix arrays into explicit JSON objects for our frontend template loop
     subjects_list = []
     for r in rows:
         subjects_list.append({
@@ -495,3 +556,5 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+            

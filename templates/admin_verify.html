@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eAkadamik | Admin Verification Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-custom-header { background: linear-gradient(135deg, #d14d0a 0%, #b33d00 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+        .admin-title-block h1 { margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 0.5px; }
+        .admin-title-block p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.85; text-transform: uppercase; }
+        .admin-portal-badge { background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; border-radius: 6px; text-align: right; font-size: 14px; }
+        
+        .form-section-title { background: #d14d0a; color: white; padding: 14px 20px; font-size: 1.15em; font-weight: 600; border-radius: 6px 6px 0 0; margin-bottom: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .verification-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e0e0e0; border-radius: 0 0 6px 6px; overflow: hidden; }
+        .verification-table th { background: #f5f5f5; color: #444; font-weight: 600; border-bottom: 2px solid #ddd; padding: 14px 12px; text-align: left; font-size: 0.9em; }
+        .verification-table td { border-bottom: 1px solid #eee; padding: 14px 12px; font-size: 0.9em; color: #333; vertical-align: middle; }
+        .verification-table tr:hover { background-color: #fcfcfc; }
+        
+        .inline-btn { padding: 6px 14px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.85em; cursor: pointer; color: white; transition: background 0.2s; }
+        .btn-approve { background: #28a745; margin-right: 5px; }
+        .btn-approve:hover { background: #218838; }
+        .btn-reject { background: #dc3545; }
+        .btn-reject:hover { background: #c82333; }
+        .view-btn { background: #17a2b8; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 0.85em; font-weight: 600; display: inline-block; }
+        .view-btn:hover { background: #138496; }
+    </style>
+</head>
+
+<body style="margin: 0; background-color: #f9f9f9; font-family: system-ui, -apple-system, sans-serif;">
+
+    <header class="admin-custom-header">
+        <div class="admin-title-block">
+            <h1>e-Akādamik Administrative Portal</h1>
+            <p>Panjab University Chandigarh • Verification Desk</p>
+        </div>
+        <div class="admin-portal-badge">
+            Role: <strong>{{ user.role }}</strong><br>
+            <span style="font-size: 12px; opacity: 0.9;">Secure Management Workspace</span>
+        </div>
+    </header>
+
+    <div style="padding: 40px; max-width: 1400px; margin: 0 auto;">
+        <main>
+            <div class="form-section-title">Pending Examination Registration Queue</div>
+
+            {% with messages = get_flashed_messages(category_filter=["success", "error"]) %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; font-weight: 500; font-size: 0.95em; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            {{ msg }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if not submissions %}
+                <div style="background: #fff; color: #666; padding: 40px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 6px 6px; text-align: center; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    ✨ All clear! There are currently no pending student form submissions requiring verification.
+                </div>
+            {% else %}
+                <table class="verification-table">
+                    <thead>
+                        <tr>
+                            <th>Student Email</th>
+                            <th>Course / Branch</th>
+                            <th style="text-align: center;">Semester</th>
+                            <th>Amount</th>
+                            <th>Transaction Reference</th>
+                            <th>Receipt Date</th>
+                            <th>Document Proof</th>
+                            <th style="text-align: center; width: 200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in submissions %}
+                        <tr>
+                            <td><strong>{{ sub.student_email }}</strong></td>
+                            <td>{{ sub.course }} — <span style="color:#666;">{{ sub.branch }}</span></td>
+                            <td style="text-align: center;"><span style="background: #eee; padding: 3px 8px; border-radius: 4px; font-weight:600;">{{ sub.semester }}</span></td>
+                            <td style="font-weight: 600; color: #2e7d32;">₹{{ sub.amount }}</td>
+                            <td><code style="background: #f1f1f1; padding: 3px 6px; border-radius: 3px; font-size: 1.05em;">{{ sub.transaction_id }}</code></td>
+                            <td>{{ sub.receipt_date }}</td>
+                            <td>
+                                <a href="{{ url_for('static', filename='uploads/receipts/' ~ sub.receipt_filename) }}" target="_blank" class="view-btn">
+                                    👁️ View Proof
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                <form action="/admin/verify-submissions" method="POST" style="display:inline;">
+                                    <input type="hidden" name="submission_id" value="{{ sub.id }}">
+                                    <input type="hidden" name="action" value="Approved">
+                                    <button type="submit" class="inline-btn btn-approve">Approve</button>
+                                </form>
+
+                                <form action="/admin/verify-submissions" method="POST" style="display:inline;">
+                                    <input type="hidden" name="submission_id" value="{{ sub.id }}">
+                                    <input type="hidden" name="action" value="Rejected">
+                                    <button type="submit" class="inline-btn btn-reject">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </main>
+    </div>
+
+    <footer style="text-align: center; color: #888; font-size: 0.85em; margin-top: 60px; padding: 20px; border-top: 1px solid #eee; background: #fff;">
+        <p>eAkadamik Portal © 2026. Powered By C-DAC Mohali</p>
+    </footer>
+
+</body>
+</html>

@@ -232,7 +232,48 @@ def examination():
     status_map = {str(row['semester']): row['status'] for row in submission_history}
     return render_template("examination.html", user=user_data, status_map=status_map)
 
+# --- ADMINISTRATIVE WORKSPACE: PRINTABLE ADMIT CARD ENGINE ---
+@app.route("/examination/admit-card/<int:semester>", methods=["GET"])
+def download_admit_card(semester):
+    user_data = session.get('user_data')
+    if not user_data:
+        flash("Authorization Required: Please re-authenticate system session.", "error")
+        return redirect(url_for('login'))
 
+    conn = get_db_connection()
+    
+    # 1. Verify this student's request is approved for this semester before opening access
+    row = conn.execute("""
+        SELECT branch, course, status 
+        FROM exam_submissions 
+        WHERE student_email = ? AND semester = ?
+    """, (user_data['email'], semester)).fetchone()
+
+    # Security check: If they haven't applied or were not approved, deny access
+    if not row or row['status'] != 'Approved':
+        conn.close()
+        flash("Access Denied: Your admit card remains locked until an administrative officer approves your fee submission proof.", "error")
+        return redirect(url_for('examination'))
+
+    # CONVERT SQLite Row to a standard Python Dict to prevent Jinja property reference crashes
+    sub_info = dict(row)
+
+    # Normalize database query branch mapping fields
+    db_branch = sub_info['branch']
+    if db_branch == "CSE": db_branch = "Computer Science & Engineering"
+    elif db_branch == "Mechanical": db_branch = "Mech"
+
+    # 2. Fetch the subject data for this specific semester and branch
+    subjects_rows = conn.execute("""
+        SELECT subject, subject_type, credits 
+        FROM syllabus 
+        WHERE branch = ? AND semester = ?
+    """, (db_branch, semester)).fetchall()
+    
+    subjects = [dict(r) for r in subjects_rows]
+    conn.close()
+
+    return render_template("admit_card.html", user=user_data, semester=semester, sub_info=sub_info, subjects=subjects)
 # --- 8b. CLEAN & SEPERATED ADMIN SUBMISSION VERIFICATION PANEL ---
 @app.route("/admin/verify-submissions", methods=["GET", "POST"])
 def admin_verify_submissions():
@@ -299,6 +340,58 @@ def fetch_examination_matrix():
         })
         
     return jsonify({"subjects": subjects_list})
+# --- UNIVERSITY CERTIFICATE TRACKING SYSTEM ---
+@app.route("/api/request-certificate", methods=["POST"])
+def request_certificate():
+    # Attempt to grab student from direct or nested session configurations
+    email = session.get('email') or (session.get('user_data', {}).get('email') if session.get('user_data') else None)
+    
+    if not email:
+        return jsonify({"success": False, "message": "Session expired. Please log in again."}), 401
+    
+    conn = get_db_connection()
+    
+    # Verify if they have at least one 'Approved' examination submission before issuing a graduation token
+    approval_check = conn.execute("""
+        SELECT COUNT(*) as count FROM exam_submissions 
+        WHERE student_email = ? AND status = 'Approved'
+    """, (email,)).fetchone()
+    
+    conn.close()
+    
+    if approval_check['count'] == 0:
+        return jsonify({
+            "success": False, 
+            "message": "Clearance Denied: You must have at least one verified/approved semester record to request a Provisional Certificate."
+        })
+    
+    return jsonify({
+        "success": True, 
+        "message": "Clearance Granted! Preparing your verified document pack..."
+    })
+
+
+@app.route("/examination/download-certificate", methods=["GET"])
+def download_certificate():
+    email = session.get('email')
+    name = session.get('name', 'Bona fide Student')
+    user_id = session.get('user_id', 101)
+    
+    # Nested session fallback check
+    if not email and session.get('user_data'):
+        email = session['user_data'].get('email')
+        name = session['user_data'].get('name', name)
+        user_id = session['user_data'].get('id', user_id)
+
+    if not email:
+        return "Authorization Required. Please log in first.", 403
+        
+    user_pack = {'email': email, 'name': name, 'id': user_id}
+    
+    from datetime import datetime
+    generation_date = datetime.now().strftime("%B %d, %Y")
+    
+    return render_template("certificate_template.html", user=user_pack, date=generation_date)
 
 # --- 9. WORK-FLOW ROUTE (SHARED BY FACULTY & ADMINISTRATIVE BRANCHES) ---
 @app.route("/workflow", methods=["GET", "POST"])
@@ -343,58 +436,97 @@ def workflow():
 
     conn.close()
     return render_template("workflow.html", user=user_data, action=action, subjects=subjects)
-
-# --- 10. RESULT ROUTE (BRANCHED BY ACCESSIBLE TIERS) ---
+# --- 10. RESULT ROUTE (INTEGRATED STUDENT PIPELINE) ---
 @app.route("/result", methods=["GET", "POST"])
 def result():
     user_data = session.get('user_data')
     if not user_data:
         return redirect("/")
         
-    # Student view condition branch
-    if user_data.get('is_student'):
-        return render_template("result.html", user=user_data, action="student_view")
+    # --- GET REQUEST: Loads the baseline structural template exactly like Examination ---
+    if request.method == "GET":
+        if 'branch_full' not in user_data:
+            b = user_data.get('branch', 'CSE')
+            user_data['branch_full'] = "Computer Science & Engineering" if b == "CSE" else "Mechanical Engineering" if b == "ME" else "Electrical Engineering" if b == "EE" else "Civil Engineering"
+        
+        # We pass show_form=False initially so the right-hand panel behaves properly
+        return render_template("result.html", user=user_data, show_form=False)
 
-    action = request.args.get("action")
+    # --- POST REQUEST: Processes selection form submission ---
+    selected_semester = request.form.get('semester')
+    roll_no = user_data.get('id') or user_data.get('user_id') or "CO25316"
+    branch = user_data.get('branch', 'CSE')
+
+    from datetime import datetime
+    current_timestamp = datetime.now().strftime("%a %b %d %H:%M:%S IST %Y")
+
     conn = sqlite3.connect("users.db")
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    student = None
-    results = []
 
-    if action == "fetch" and request.method == "POST":
-        roll_no = request.form.get("roll_no")
-        branch = request.form.get("branch")
-        semester = request.form.get("semester")
-        session_val = request.form.get("session")
+    student_record = cursor.execute(
+        "SELECT * FROM students WHERE branch=? AND semester=?", 
+        (branch, selected_semester)
+    ).fetchone()
 
-        cursor.execute("SELECT * FROM students WHERE roll_no=? AND branch=? AND semester=? AND session=?",
-                       (roll_no, branch, semester, session_val))
-        student = cursor.fetchone()
-
-        if student:
-            cursor.execute("SELECT subject, marks, grade FROM marks WHERE roll_no=?", (roll_no,))
-            results = cursor.fetchall()
-
-        conn.close()
-        return render_template("result.html", user=user_data, action="view", student=student, results=results)
-
-    elif action == "view":
-        roll_no = request.args.get("roll_no")
-        branch = request.args.get("branch")
-
-        if roll_no and branch:
-            cursor.execute("SELECT * FROM students WHERE roll_no=? AND branch=?", (roll_no, branch))
-            student = cursor.fetchone()
-            if student:
-                cursor.execute("SELECT subject, marks, grade FROM marks WHERE roll_no=?", (roll_no,))
-                results = cursor.fetchall()
-
-        conn.close()
-        return render_template("result.html", user=user_data, action="view", student=student, results=results)
+    mark_records = cursor.execute(
+        "SELECT subject, marks, grade FROM marks WHERE roll_no=?", 
+        (roll_no,)
+    ).fetchall()
 
     conn.close()
-    return render_template("result.html", user=user_data, action=action)
 
+    # If no results uploaded yet, send back to template with the message parameters
+    if not student_record or not mark_records:
+        disclaimer_msg = (
+            "Disclaimer: Information displayed below is being provided before final scrutiny and "
+            "declaration by COE office, PU, to facilitate students of CCET to be informed about their result. "
+            "The result is informative in nature and should not be construed as final. "
+            "Final result will be declared by COE office, PU."
+        )
+        return render_template(
+            "result_transcript.html",
+            user=user_data,
+            has_result=False,
+            semester=selected_semester,
+            disclaimer=disclaimer_msg,
+            timestamp=current_timestamp
+        )
+
+    # If results exist, compile scores
+    parsed_results = []
+    total_credits = 0
+    total_points = 0
+    grade_points_map = {'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'F': 0}
+
+    for row in mark_records:
+        grade = row['grade'] or 'B+'
+        credits = 4 if "Physics" in row['subject'] or "Calculus" in row['subject'] else 3
+        total_credits += credits
+        total_points += (grade_points_map.get(grade, 7) * credits)
+
+        parsed_results.append({
+            'name': row['subject'],
+            'code': "ASM101",
+            'type': "Theory",
+            'grade': grade,
+            'credits': credits
+        })
+
+    sgpa_calc = round(total_points / total_credits, 2) if total_credits > 0 else 0.00
+
+    return render_template(
+        "result_transcript.html",
+        user=user_data,
+        has_result=True,
+        student_info=student_record,
+        semester=selected_semester,
+        results=parsed_results,
+        sgpa=sgpa_calc,
+        cgpa=sgpa_calc,
+        total_credits=total_credits,
+        timestamp=current_timestamp
+    )
 # --- 11. ATTENDANCE ROUTE (BRANCHED BY ACCESSIBLE TIERS) ---
 @app.route("/attendance", methods=["GET", "POST"])
 def attendance():
@@ -553,7 +685,8 @@ def logout():
     session.clear()
     flash("Logged out successfully!", "success")
     return redirect("/")
-
+# Automatically generates the upload directory if it's missing from your static folder
+os.makedirs(os.path.join('static', 'uploads'), exist_ok=True)
 if __name__ == "__main__":
     app.run(debug=True)
 

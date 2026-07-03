@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Panjab University | Provisional & Character Certificate</title>
+    <style>
+        body { font-family: 'Georgia', serif; background: #fff; color: #000; margin: 0; padding: 30px; text-align: center; }
+        .cert-border { border: 5px double #000; padding: 40px; max-width: 800px; margin: 0 auto; position: relative; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .header h1 { font-size: 28px; margin: 0; text-transform: uppercase; font-weight: bold; }
+        .header h2 { font-size: 16px; margin: 5px 0; font-weight: normal; font-style: italic; color: #444; }
+        .serial-no { text-align: left; font-size: 14px; font-family: monospace; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; text-decoration: underline; margin: 30px 0; letter-spacing: 1px; }
+        .content { font-size: 16px; line-height: 1.8; text-align: justify; margin: 20px 40px; }
+        .highlight { font-weight: bold; font-family: Arial, sans-serif; }
+        .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 70px; padding: 0 40px; }
+        .sig-line { border-top: 1px solid #000; width: 200px; padding-top: 5px; font-size: 13px; font-family: Arial, sans-serif; }
+        @media print { .no-print { display: none !important; } body { padding: 0; } .cert-border { box-shadow: none; border: 5px double #000; } }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <div class="no-print" style="max-width: 880px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; background: #f8f9fa; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+        <span style="font-size: 13px; color: #555; align-self: center;">📋 Certificate Verification System active. Press <strong>Ctrl + P</strong> if the native box closes.</span>
+        <button onclick="window.print();" style="background: #0056b3; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer;">Print / Download</button>
+    </div>
+
+    <div class="cert-border">
+        <div class="serial-no">Ref No: PU/PROV/2026/{{ user.id + 7341 }}</div>
+        
+        <div class="header">
+            <h1>Panjab University, Chandigarh</h1>
+            <h2>Established under the Panjab University Act VII of 1947</h2>
+        </div>
+        
+        <div class="title">PROVISIONAL & CHARACTER CERTIFICATE</div>
+        
+        <div class="content">
+            This is to provisionally certify that candidate <span class="highlight">{{ user.name }}</span>, 
+            bearing Registered Email record <span class="highlight">{{ user.email }}</span>, has been a bona fide student 
+            of this University. During the academic assessment evaluations, they have maintained satisfactory milestones 
+            and cleared regular institutional documentation standards.
+            <br><br>
+            To the best of our administrative knowledge and registry records, they bear a <span class="highlight">GOOD MORAL CHARACTER</span> 
+            and displayed commendable conduct during their stay within the university departments. This token certificate is 
+            granted provisionally to assist the individual in career paths and higher processing modules.
+        </div>
+        
+        <div class="footer">
+            <div style="text-align: left; font-size: 13px;">
+                Date: {{ date }}<br>
+                Venue: Chandigarh, India
+            </div>
+            <div class="sig-line">
+                <strong>Registrar / Dean</strong><br>
+                Academic Affairs Council
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

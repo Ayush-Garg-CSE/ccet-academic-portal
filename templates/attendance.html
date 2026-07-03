@@ -5,46 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>eAkadamik | Attendance</title>
   <style>
-    /* RESET & BASE */
-    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
-    body { min-height:100vh; min-width:max-content; background:#eaebed; color:#333; display:flex; flex-direction:column; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    html, body { height: 100%; width: 100%; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
 
-    /* HEADER */
-    .top-header { background:#cc5a27; color:white; display:flex; justify-content:space-between; align-items:center; padding:12px 40px; width:100%; }
-    .header-left { display:flex; align-items:center; gap:20px; }
-    .logo-text h1 { font-size:20px; font-weight:normal; margin:0; }
-    .logo-text p { font-size:9px; letter-spacing:1px; margin:0; }
-    .university-name { border-left:1px solid rgba(255,255,255,0.4); padding-left:20px; }
-    .university-name h2 { font-size:14px; font-weight:normal; margin:0; }
-    .header-right { text-align:right; font-size:12px; display:flex; align-items:center; gap:15px; }
+    /* Unified Top Brand Header Matrix */
+    .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; width: 100%; height: 70px; }
+    .header-left { display: flex; align-items: center; gap: 20px; }
+    .logo-text h1 { font-size: 22px; font-weight: normal; margin: 0; letter-spacing: 0.5px; }
+    .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; opacity: 0.8; }
+    .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
+    .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; letter-spacing: 0.5px; }
+    .header-right { text-align: right; font-size: 13px; display: flex; align-items: center; gap: 15px; color: white; }
+    .header-right strong { font-weight: bold; }
+    .user-avatar-circle { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #cc5a27; font-size: 24px; border: 1px solid rgba(0,0,0,0.1); }
 
-    /* NAV BAR */
-    .main-nav { background:#e6dac8; display:flex; border-bottom:1px solid #ccc; width:100%; padding:0 40px; }
-    .main-nav a { padding:12px 22px; text-decoration:none; color:#555; font-size:11px; font-weight:bold; text-transform:uppercase; }
-    .main-nav a.active { background:#eaebed; color:#333; border-top:3px solid #cc5a27; }
-    .logout-btn { margin-left:auto; }
+    /* Production-Aligned Master Tab Layout */
+    .main-nav { background-color: #f0e9df; display: flex; width: 100%; border-bottom: 1px solid #ccc; padding-left: 100px; }
+    .main-nav a { padding: 14px 30px; text-decoration: none; color: #555; font-size: 12px; font-weight: bold; text-transform: uppercase; border-right: 1px solid rgba(0,0,0,0.05); text-align: center; }
+    .main-nav a.active { background-color: #ffffff; color: #333; border-top: 3px solid #cc5a27; margin-top: -1px; }
+    .main-nav a.logout-item { margin-left: auto; border-left: 1px solid rgba(0,0,0,0.05); border-right: none; padding-right: 40px; }
 
-    /* CONTAINER */
-    .container { display:flex; padding:30px 40px; gap:30px; flex:1; align-items:flex-start; width:100%; }
+    /* Layout Constraints Canvas */
+    .container { display: flex; padding: 40px 100px; gap: 40px; flex: 1; align-items: flex-start; width: 100%; background-color: #eaeff2; }
 
-    /* SIDEBAR */
-    .sidebar { width:260px; background:#f1ebd9; border:1px solid #dcd3c2; padding:25px 20px; box-shadow:2px 2px 5px rgba(0,0,0,0.05); }
-    .profile-icon { width:60px; height:60px; border-radius:50%; border:2px solid #555; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:30px; background:white; color:#555; }
-    .sidebar h3 { text-align:center; font-size:15px; font-weight:normal; margin-bottom:2px; }
-    .sidebar p { text-align:center; font-size:13px; color:#444; margin-bottom:25px; }
+    /* Compact Profile Side Card Box Layout */
+    .left-profile-card { width: 230px; background-color: #fcf3e3; border: 1px solid #dcd1ba; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); flex-shrink: 0; }
+    .card-avatar { width: 75px; height: 75px; background: white; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #666; margin-bottom: 15px; }
+    .card-name { font-size: 15px; font-weight: normal; color: #333; margin-bottom: 4px; }
+    .card-role { font-size: 13px; color: #555; margin-bottom: 15px; }
+    .card-divider { width: 100%; border-top: 1px solid #dcd1ba; margin-bottom: 15px; }
+    
+    /* Original Teal Buttons Elements */
+    .action-btn { display: block; width: 100%; padding: 10px; font-size: 12px; font-weight: bold; border: none; text-decoration: none; cursor: pointer; text-align: center; background-color: #2ca4ab; color: white; border-radius: 3px; }
+    .action-btn:hover { background-color: #23898f; }
 
-    /* BUTTONS */
-    .action-btn { display:block; width:100%; padding:10px; margin-bottom:8px; font-size:12px; border:1px solid #1a7a7a; background:#208b8b; color:white; text-decoration:none; text-align:center; cursor:pointer; transition:background-color 0.2s ease; }
-    .action-btn:hover { background:#166e6e; }
+    /* Dynamic Content Workspace Frame */
+    .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
+    .panel-header { background-color: #2ca4ab; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
+    .form-container { padding: 30px; }
+    .form-container h4 { font-size: 13px; color: #333; margin-bottom: 25px; font-weight: bold; }
 
-    /* WORKSPACE */
-    .workspace { flex:1; background:#f9f9f9; border:1px solid #ccc; padding:20px; box-shadow:2px 2px 5px rgba(0,0,0,0.05); }
-    .workspace-box { background:#fff; padding:20px; border:1px solid #ddd; display:none; }
-    .workspace-box h3 { margin-bottom:15px; }
+    /* Form Controls */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 50px; }
+    .form-group { display: flex; align-items: center; justify-content: space-between; }
+    .form-group label { font-size: 12px; color: #333; width: 30%; font-weight: bold; }
+    .form-group select, .form-group input[type="text"] { width: 65%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; color: #555; background-color: #fdfdfd; }
+    .form-group select:disabled, .form-group input:disabled { background-color: #f5f5f5; color: #777; cursor: not-allowed; }
 
-    /* FOOTER */
-    .footer { background:#cc5a27; color:rgba(255,255,255,0.9); display:flex; justify-content:space-between; padding:10px 40px; font-size:11px; width:100%; }
-  </style>
+    .form-actions { margin-top: 30px; text-align: center; }
+    .btn-submit { background-color: #2ca4ab; border: none; color: white; padding: 8px 25px; font-size: 12px; cursor: pointer; margin-right: 10px; font-weight: bold; border-radius: 2px; }
+    .btn-submit:hover { background-color: #23898f; }
+    .btn-cancel { background-color: #f4f4f4; border: 1px solid #ccc; padding: 8px 25px; font-size: 12px; cursor: pointer; color: #333; border-radius: 2px; }
+
+    /* Unified Footer Space */
+    .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 10px 30px; font-size: 11px; width: 100%; margin-top: auto; }
+</style>
 </head>
 <body>
 
@@ -59,16 +74,16 @@
     </div>
   </header>
 
-  <nav class="main-nav">
-    <a href="/dashboard">DASHBOARD</a>
-    <a href="/workflow">WORK-FLOW</a>
-    <a href="/result">RESULT</a>
-    <a href="/attendance" class="active">ATTENDANCE</a>
-    <a href="/syllabus">SYLLABUS</a>
-    <a href="/docupload">DOCUPLOAD</a>
-    <a href="/settings">SETTINGS</a>
-    <a href="/logout" class="logout-btn">LOGOUT</a>
-  </nav>
+ <nav class="main-nav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/examination">Examination</a>
+    <a href="/result">Result</a>
+    <a href="/attendance" class="active">Attendance</a>
+    <a href="/syllabus">Syllabus</a>
+    <a href="/docupload">DocUpload</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" class="logout-item">Logout</a>
+</nav>
 
   <div class="container">
     <!-- Sidebar -->

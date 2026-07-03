@@ -41,9 +41,9 @@
     <header class="top-header">
         <div class="header-left">
             <div class="logo-text">
-                <h1>e-Akādamik</h1>
-                <p>UNIFIED ACADEMIC SYSTEM</p>
-            </div>
+    <h1>e-Akadamik</h1>
+    <p>UNIFIED ACADEMIC SYSTEM</p>
+</div>
             <div class="university-name">
                 <h2>PANJAB UNIVERSITY</h2>
                 <h2>CHANDIGARH</h2>
@@ -89,8 +89,8 @@
             </div>
             <div class="divider"></div>
             <div style="padding: 10px 0;">
-                <button class="tab-sidebar-btn" onclick="showRegistrationForm()">Registration Form</button>
-                <button class="tab-sidebar-btn secondary" onclick="alert('Kindly complete Profile configuration rules before requesting formal certificates.')">Request For Provisional / Character Certificate</button>
+               <button class="tab-sidebar-btn" onclick="showRegistrationForm()">Registration Form</button>
+               <button class="tab-sidebar-btn" onclick="processCertificateRequest()" style="background: #0056b3; color: white; margin-top: 10px;">Request For Provisional / Character Certificate</button>
             </div>
         </aside>
 
@@ -145,7 +145,7 @@
 
                     <div class="btn-container-row">
                         <button type="button" class="action-btn btn-primary" onclick="revealSubjects()">View Subjects</button>
-                        <button type="button" class="action-btn btn-success" onclick="alert('Admit card payload is compiling. Please check back after form processing approval.')">Download Admit Card</button>
+                       <button type="button" id="download-admit-card-btn" class="btn btn-success" disabled>Print / Generate Preview</button>
                         <button type="button" class="action-btn btn-secondary" onclick="resetFormView()">Cancel</button>
                     </div>
 
@@ -192,67 +192,191 @@
                         </div>
                     </div>
                 </form>
-            </div>
-        </main>
+
+                <div class="registration-action-card" style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+    <h3 style="margin-top: 0; color: #333; font-size: 1.2em;">Examination Registration Status</h3>
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <div>
+            <p style="margin: 0; font-size: 0.95em; color: #666;">Current Selection: <strong id="display-selected-semester">None Selected</strong></p>
+            <p style="margin: 5px 0 0 0; font-size: 1.05em;">
+                Status: <span id="verification-status-badge" style="color: #666; background: #eee; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">Please select a semester</span>
+            </p>
+        </div>
+
+        <div id="action-button-container">
+            <button class="btn" disabled style="background: #ced4da; color: #6c757d; padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed;">
+                🔒 Admit Card Locked
+            </button>
+        </div>
     </div>
+</div>
+<script>
+    // Safe injection of Flask backend dictionary values
+    const flaskStatusMap = {{ status_map | tojson | safe }};
 
-    <footer class="footer">
-        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
-        <p>Powered By C-DAC Mohali</p>
-    </footer>
+    // 1. Sidebar Panel Display & Switching System
+    function showRegistrationForm() {
+        const formContainer = document.getElementById('registration-form-container');
+        if (formContainer) {
+            formContainer.style.display = 'block';
+        }
+        clearSubjectPayload();
+    }
 
-    <script>
-        function showRegistrationForm() {
-            document.getElementById('registration-form-container').style.display = 'block';
-            clearSubjectPayload();
+    function clearSubjectPayload() {
+        const payload = document.getElementById('hidden-examination-payload');
+        const tbody = document.getElementById('subject-dynamic-body');
+        if (payload) payload.style.display = 'none';
+        if (tbody) tbody.innerHTML = '';
+    }
+
+    function resetFormView() {
+        const semesterSelect = document.getElementById('semester-selector') || document.getElementById('semester');
+        if (semesterSelect) semesterSelect.selectedIndex = 0;
+        clearSubjectPayload();
+        const formContainer = document.getElementById('registration-form-container');
+        if (formContainer) formContainer.style.display = 'none';
+    }
+
+    // 2. Dedicated pipeline for handling provisional certificate tracking
+    function processCertificateRequest() {
+        fetch('/api/request-certificate', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.open('/examination/download-certificate', '_blank');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Certificate request error:", err);
+                alert("Critical engine error loading university verification registries.");
+            });
+    }
+
+    // 3. Dynamic Database Syllabus Subject Matrix API Fetcher
+    function revealSubjects() {
+        const branchEl = document.getElementById('department-display');
+        const semEl = document.getElementById('semester-selector') || document.getElementById('semester');
+        
+        if (!semEl || !semEl.value) {
+            alert('Please select a Semester specification first.');
+            return;
         }
 
-        function clearSubjectPayload() {
-            document.getElementById('hidden-examination-payload').style.display = 'none';
-            document.getElementById('subject-dynamic-body').innerHTML = '';
-        }
+        const branch = branchEl ? branchEl.value : '';
+        const sem = semEl.value;
 
-        function revealSubjects() {
-            var branch = document.getElementById('department-display').value;
-            var sem = document.getElementById('semester-selector').value;
-            
-            if(!sem) {
-                alert('Please select a Semester specification first.');
-                return;
+        fetch(`/api/fetch-examination-matrix?branch=${encodeURIComponent(branch)}&semester=${sem}`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('subject-dynamic-body');
+                if (!tbody) return;
+                tbody.innerHTML = ''; 
+
+                if (!data.subjects || data.subjects.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #777;">No syllabus subjects recorded for this selection criteria.</td></tr>`;
+                } else {
+                    data.subjects.forEach((sub, idx) => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td><strong>${sub.subject}</strong></td>
+                                <td>${sub.subject_type}</td>
+                                <td>${sub.credits} Units</td>
+                            </tr>`;
+                    });
+                }
+                const payload = document.getElementById('hidden-examination-payload');
+                if (payload) payload.style.display = 'block';
+            })
+            .catch(err => {
+                console.error("Communication pipeline exception encountered:", err);
+                alert("Error communicating with database mapping engine.");
+            });
+    }
+      // 4. Automated State Interceptor: Splits actions between Print and Download
+    document.addEventListener("DOMContentLoaded", function() {
+        const semesterSelect = document.getElementById('semester-selector') || document.getElementById('semester') || document.querySelector('select');
+        let mainGreenBtn = document.getElementById('download-admit-card-btn');
+
+        if (!mainGreenBtn) {
+            const allButtons = document.querySelectorAll('button');
+            for (let btn of allButtons) {
+                if (btn.textContent.trim().includes("Print") || btn.textContent.trim().includes("Download")) {
+                    mainGreenBtn = btn;
+                    break;
+                }
             }
+        }
 
-            fetch(`/api/fetch-examination-matrix?branch=${encodeURIComponent(branch)}&semester=${sem}`)
-                .then(response => response.json())
-                .then(data => {
-                    var tbody = document.getElementById('subject-dynamic-body');
-                    tbody.innerHTML = ''; 
+        if (semesterSelect) {
+            semesterSelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                const displaySem = document.getElementById('display-selected-semester');
+                const statusBadge = document.getElementById('verification-status-badge');
+                const buttonContainer = document.getElementById('action-button-container');
 
-                    if (!data.subjects || data.subjects.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #777;">No syllabus subjects recorded for this selection criteria.</td></tr>`;
-                    } else {
-                        data.subjects.forEach((sub, idx) => {
-                            tbody.innerHTML += `
-                                <tr>
-                                    <td>${idx + 1}</td>
-                                    <td><strong>${sub.subject}</strong></td>
-                                    <td>${sub.subject_type}</td>
-                                    <td>${sub.credits} Units</td>
-                                </tr>`;
-                        });
+                if (!selectedValue || selectedValue.includes('--')) {
+                    if (displaySem) displaySem.innerText = "None Selected";
+                    if (statusBadge) statusBadge.innerHTML = `<span style="color: #666; background: #eee; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">Please select a semester</span>`;
+                    if (buttonContainer) buttonContainer.innerHTML = `<button class="btn" disabled style="background: #ced4da; color: #6c757d; padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed;">🔒 Admit Card Locked</button>`;
+                    
+                    if (mainGreenBtn) {
+                        mainGreenBtn.disabled = true;
+                        mainGreenBtn.style.cursor = 'not-allowed';
+                        mainGreenBtn.style.opacity = '0.6';
+                        mainGreenBtn.onclick = null;
                     }
-                    document.getElementById('hidden-examination-payload').style.display = 'block';
-                })
-                .catch(err => {
-                    console.error("Communication pipeline exception encountered:", err);
-                    alert("Error communicating with database mapping engine.");
-                });
-        }
+                    return;
+                }
 
-        function resetFormView() {
-            document.getElementById('semester-selector').selectedIndex = 0;
-            clearSubjectPayload();
-            document.getElementById('registration-form-container').style.display = 'none';
+                if (displaySem) displaySem.innerText = "Semester " + selectedValue;
+                const currentStatus = flaskStatusMap[selectedValue] || 'Not Applied';
+
+                if (currentStatus === 'Approved') {
+                    if (statusBadge) statusBadge.innerHTML = `<span style="color: #155724; background: #d4edda; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">✅ Approved</span>`;
+                    
+                    // BOTTOM ORANGE BUTTON: Configured exclusively to FORCE DOWNLOAD to Chrome
+                    if (buttonContainer) {
+                        buttonContainer.innerHTML = `<a href="/examination/admit-card/${selectedValue}" download="Admit_Card_Semester_${selectedValue}.html" class="btn" style="background: #d14d0a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 600; display: inline-block; text-align: center;">📥 Download Admit Card</a>`;
+                    }
+                    
+                    // UPPER GREEN BUTTON: Configured exclusively to OPEN PRINT PREVIEW WINDOW
+                    if (mainGreenBtn) {
+                        mainGreenBtn.disabled = false;
+                        mainGreenBtn.style.cursor = 'pointer';
+                        mainGreenBtn.style.opacity = '1';
+                        mainGreenBtn.onclick = function(e) {
+                            e.preventDefault();
+                            window.open(`/examination/admit-card/${selectedValue}`, '_blank');
+                        };
+                    }
+                } else {
+                    if (mainGreenBtn) {
+                        mainGreenBtn.disabled = true;
+                        mainGreenBtn.style.cursor = 'not-allowed';
+                        mainGreenBtn.style.opacity = '0.6';
+                        mainGreenBtn.onclick = null;
+                    }
+
+                    if (currentStatus === 'Pending') {
+                        if (statusBadge) statusBadge.innerHTML = `<span style="color: #856404; background: #fff3cd; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">⏳ Verification Pending</span>`;
+                        if (buttonContainer) buttonContainer.innerHTML = `<button class="btn" disabled style="background: #6c757d; color: #fff; padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed; opacity: 0.65;">🔒 Awaiting Verification</button>`;
+                    } else if (currentStatus === 'Rejected') {
+                        if (statusBadge) statusBadge.innerHTML = `<span style="color: #721c24; background: #f8d7da; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">❌ Rejected</span>`;
+                        if (buttonContainer) buttonContainer.innerHTML = `<button class="btn" disabled style="background: #dc3545; color: #fff; padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed; opacity: 0.5;">❌ Submission Denied</button>`;
+                    } else {
+                        if (statusBadge) statusBadge.innerHTML = `<span style="color: #666; background: #eee; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">Not Yet Registered</span>`;
+                        if (buttonContainer) buttonContainer.innerHTML = `<button class="btn" disabled style="background: #ced4da; color: #6c757d; padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed;">🔒 Admit Card Locked</button>`;
+                    }
+                }
+            });
         }
-    </script>
+    });
+</script>
 </body>
 </html>

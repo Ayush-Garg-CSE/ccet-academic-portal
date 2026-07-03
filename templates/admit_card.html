@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Panjab University | Examination Admit Card</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #000; background: #fff; margin: 0; padding: 20px; line-height: 1.4; }
+        .admit-card-container { max-width: 850px; margin: 0 auto; border: 3px double #000; padding: 25px; position: relative; }
+        
+        /* Official Header Theme Layout */
+        .university-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+        .university-header h1 { margin: 0; font-size: 24px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+        .university-header h2 { margin: 5px 0 0 0; font-size: 16px; font-weight: normal; color: #333; }
+        .document-title { display: inline-block; background: #000; color: #fff; padding: 6px 20px; font-weight: bold; font-size: 14px; margin-top: 15px; text-transform: uppercase; border-radius: 2px; }
+        
+        /* Personal Details Meta Grid */
+        .details-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .details-table td { padding: 8px 6px; vertical-align: top; font-size: 14px; }
+        .details-table td.label { font-weight: bold; width: 18%; text-transform: uppercase; font-size: 12px; color: #444; }
+        .details-table td.value { border-bottom: 1px dotted #888; width: 32%; }
+        
+        /* Syllabus/Subjects Grid Matrix */
+        .subject-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 40px; }
+        .subject-table th { background: #f2f2f2; border: 1px solid #000; padding: 10px; font-size: 12px; text-transform: uppercase; font-weight: bold; text-align: left; }
+        .subject-table td { border: 1px solid #000; padding: 10px; font-size: 13px; }
+        
+        /* Bottom Signature Triggers */
+        .signature-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px; padding: 0 10px; }
+        .sig-box { text-align: center; width: 200px; font-size: 13px; border-top: 1px solid #000; padding-top: 8px; }
+        
+        /* Hide buttons during system print out triggers */
+        @media print {
+            .print-action-bar { display: none !important; }
+            body { padding: 0; }
+            .admit-card-container { border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <body onload="window.print();"></body>
+    <div class="print-action-bar" style="max-width: 850px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; background: #f8f9fa; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px;">
+        <span style="font-size: 14px; color: #555; align-self: center;">💡 Tip: Press <strong>Ctrl + P</strong> to save this document natively as an official PDF file copy.</span>
+        <button onclick="window.print();" style="background: #d14d0a; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">🖨️ Print Admit Card</button>
+    </div>
+
+    <div class="admit-card-container">
+        <div class="university-header">
+            <h1>Panjab University, Chandigarh</h1>
+            <h2>Provisional Examination Admit Card • Semester {{ semester }}</h2>
+            <div class="document-title">Official Hall Ticket</div>
+        </div>
+
+        <table class="details-table">
+            <tr>
+                <td class="label">Candidate Name</td>
+                <td class="value"><strong>{{ user.name }}</strong></td>
+                <td class="label">Roll Number</td>
+                <td class="value"><strong>PU-{{ user.id + 104800 if user.id else 104801 }}</strong></td>
+            </tr>
+            <tr>
+                <td class="label">Course Name</td>
+                <td class="value">{{ sub_info['course'] }}</td>
+                <td class="label">Branch Name</td>
+                <td class="value">{{ sub_info['branch'] }}</td>
+            </tr>
+            <tr>
+                <td class="label">Father's Name</td>
+                <td class="value" style="color: #999; font-style: italic;"></td> <td class="label">Mother's Name</td>
+                <td class="value" style="color: #999; font-style: italic;"></td> </tr>
+            <tr>
+                <td class="label">Registered Email</td>
+                <td class="value">{{ user.email }}</td>
+                <td class="label">Exam Session</td>
+                <td class="value">May / June 2026</td>
+            </tr>
+        </table>
+
+        <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 4px;">Authorized Course Code Register</h3>
+        <table class="subject-table">
+            <thead>
+                <tr>
+                    <th style="width: 15%; text-align: center;">Index Code</th>
+                    <th style="width: 55%;">Subject Nomenclature / Title</th>
+                    <th style="width: 15%; text-align: center;">Paper Type</th>
+                    <th style="width: 15%; text-align: center;">Course Credits</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not subjects %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #666; padding: 20px;">No course curriculum tracks mapped to this selection in database rows currently.</td>
+                </tr>
+                {% else %}
+                    {% for item in subjects %}
+                    <tr>
+                        <td style="text-align: center; font-family: monospace; font-weight: bold;">CS-{{ semester }}0{{ loop.index }}</td>
+                        <td>{{ item.subject }}</td>
+                        <td style="text-align: center; font-size: 11px;">{{ item.subject_type }}</td>
+                        <td style="text-align: center; font-weight: 600;">{{ item.credits }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div style="font-size: 11px; color: #444; border: 1px solid #ccc; padding: 10px; background: #fafafa; border-radius: 4px;">
+            <strong>Important Instructions for Candidates:</strong><br>
+            1. This hall ticket is strictly provisional and subject to full clearance of university eligibility parameters.<br>
+            2. Candidates must report at the designated examination center 30 minutes prior to execution windows.<br>
+            3. Electronic communication infrastructure (mobile modules, smart accessories) is strictly prohibited.
+        </div>
+
+        <div class="signature-section">
+            <div class="sig-box" style="border: none; text-align: left; font-size: 11px; color: #555;">
+                System Stamp ID:<br>
+                <code>EAK-2026-{{ user.id }}-SEM{{ semester }}</code>
+            </div>
+            <div class="sig-box">
+                Candidate Signature
+            </div>
+            <div class="sig-box" style="font-weight: bold;">
+                Controller of Examinations
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

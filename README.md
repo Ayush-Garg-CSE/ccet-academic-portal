@@ -12,8 +12,8 @@ Run the following commands in your terminal to launch the portal:
 
 ```bash
 # Clone the repository
-git clone [https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git)
-cd YOUR_REPO_NAME
+git clone [https://github.com/Ayush-Garg-CSE/ccet-academic-portal.git](https://github.com/Ayush-Garg-CSE/ccet-academic-portal.git)
+cd ccet-academic-portal
 
 # Install dependencies
 pip install flask

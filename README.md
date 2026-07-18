@@ -52,6 +52,12 @@ Admin Notice Engine: Inject real-time announcements onto the portal via:
 🟡 Structural / Prototype Features
 Attendance: Purely a visual prototype. The interface looks exact and high-fidelity, but backend logic is unmapped.
 
-Syllabus & DocUpload: Complete relational SQLite database schemas are active, though front-end routes currently display placeholder error screens.
+*   **Syllabus & DocUpload:** Fully operational. They actively query the database to retrieve, map, and display the official syllabus datasets and user e-documents dynamically on the frontend.
+
+*   **Settings & Security:** Fully functional. Students can actively change their account passwords directly inside the active session settings panel.
+
+*   **Forgot Password:** A working authentication recovery flow accessible from the login home screen, allowing users to securely reset account credentials.
+
+*   **Logout:** Standardized token and session clearance routing works completely, securely wiping user states upon exit.
 
 Built with Flask, SQLite3, HTML5, and CSS3.

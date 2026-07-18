@@ -25,13 +25,13 @@ python app.py
 🔑 Pre-Configured Test Accounts
 Log in directly using these pre-loaded student roles to test different branch layouts:
 
-CSE: cse.student@ccet.ac.in | Password: password123
+CSE: cse.student@ccet.ac.in | Password: studpw
 
-Mechanical: mech.student@ccet.ac.in | Password: password123
+Mechanical: mech.student@ccet.ac.in | Password: studpw
 
-ECE: ece.student@ccet.ac.in | Password: password123
+ECE: ece.student@ccet.ac.in | Password: studpw
 
-Civil: civil.student@ccet.ac.in | Password: password123
+Civil: civil.student@ccet.ac.in | Password: studpw
 
 🛠️ Feature Breakdown
 🟢 Fully Functional Features

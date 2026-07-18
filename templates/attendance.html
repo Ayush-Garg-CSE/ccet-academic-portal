@@ -1,273 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eAkadamik | Attendance</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    html, body { height: 100%; width: 100%; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Akadamik | Attendance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        html, body { height: 100%; width: 100%; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
 
-    /* Unified Top Brand Header Matrix */
-    .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; width: 100%; height: 70px; }
-    .header-left { display: flex; align-items: center; gap: 20px; }
-    .logo-text h1 { font-size: 22px; font-weight: normal; margin: 0; letter-spacing: 0.5px; }
-    .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; opacity: 0.8; }
-    .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
-    .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; letter-spacing: 0.5px; }
-    .header-right { text-align: right; font-size: 13px; display: flex; align-items: center; gap: 15px; color: white; }
-    .header-right strong { font-weight: bold; }
-    .user-avatar-circle { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #cc5a27; font-size: 24px; border: 1px solid rgba(0,0,0,0.1); }
+        /* Header matching Examination template exactly */
+        .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; width: 100%; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-text h1 { font-size: 20px; font-weight: normal; margin: 0; }
+        .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; }
+        .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
+        .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; }
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px; }
 
-    /* Production-Aligned Master Tab Layout */
-    .main-nav { background-color: #f0e9df; display: flex; width: 100%; border-bottom: 1px solid #ccc; padding-left: 100px; }
-    .main-nav a { padding: 14px 30px; text-decoration: none; color: #555; font-size: 12px; font-weight: bold; text-transform: uppercase; border-right: 1px solid rgba(0,0,0,0.05); text-align: center; }
-    .main-nav a.active { background-color: #ffffff; color: #333; border-top: 3px solid #cc5a27; margin-top: -1px; }
-    .main-nav a.logout-item { margin-left: auto; border-left: 1px solid rgba(0,0,0,0.05); border-right: none; padding-right: 40px; }
+        /* Navigation Bar matching Examination template exactly */
+        .main-nav { background-color: #f0e9df; display: flex; border-bottom: 1px solid #ccc; width: 100%; }
+        .main-nav a { padding: 12px 25px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .main-nav a.active { background-color: #ffffff; color: #555; border-top: 3px solid #cc5a27; }
+        .main-nav a.logout-item { margin-left: auto; padding-right: 30px; }
 
-    /* Layout Constraints Canvas */
-    .container { display: flex; padding: 40px 100px; gap: 40px; flex: 1; align-items: flex-start; width: 100%; background-color: #eaeff2; }
+        /* Workspace container matching Examination template exactly */
+        .container { display: flex; padding: 20px; gap: 20px; flex: 1; align-items: flex-start; width: 100%; }
 
-    /* Compact Profile Side Card Box Layout */
-    .left-profile-card { width: 230px; background-color: #fcf3e3; border: 1px solid #dcd1ba; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); flex-shrink: 0; }
-    .card-avatar { width: 75px; height: 75px; background: white; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #666; margin-bottom: 15px; }
-    .card-name { font-size: 15px; font-weight: normal; color: #333; margin-bottom: 4px; }
-    .card-role { font-size: 13px; color: #555; margin-bottom: 15px; }
-    .card-divider { width: 100%; border-top: 1px solid #dcd1ba; margin-bottom: 15px; }
-    
-    /* Original Teal Buttons Elements */
-    .action-btn { display: block; width: 100%; padding: 10px; font-size: 12px; font-weight: bold; border: none; text-decoration: none; cursor: pointer; text-align: center; background-color: #2ca4ab; color: white; border-radius: 3px; }
-    .action-btn:hover { background-color: #23898f; }
+        /* Left Sidebar Card Framework matching Examination template exactly */
+        .left-profile-card { width: 250px; background-color: #ffffff; border: 1px solid #ccc; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .card-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #555; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; background: white; color: #555; }
+        .card-name { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
+        .card-role { font-size: 12px; color: #666; margin-bottom: 15px; }
+        .card-divider { width: 100%; border-top: 1px dotted #ccc; margin-bottom: 15px; }
+        
+        /* Sidebar Navigation Menu Controls Layout */
+        .sidebar-menu-wrapper { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+        
+        /* Modern Teal Action Buttons Matching Layout Rules */
+        .action-btn { display: block; width: 100%; padding: 10px; font-size: 12px; font-weight: bold; border: none; text-decoration: none; cursor: pointer; text-align: center; background-color: #16a085; color: white; border-radius: 4px; }
+        .action-btn:hover { background-color: #12876f; }
 
-    /* Dynamic Content Workspace Frame */
-    .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
-    .panel-header { background-color: #2ca4ab; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
-    .form-container { padding: 30px; }
-    .form-container h4 { font-size: 13px; color: #333; margin-bottom: 25px; font-weight: bold; }
+        /* Right Side Panels Framework matching Result template exactly */
+        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; display: none; }
+        .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
+        .form-container { padding: 30px; }
+        .form-container h4 { font-size: 13px; color: #333; margin-bottom: 25px; font-weight: bold; }
 
-    /* Form Controls */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 50px; }
-    .form-group { display: flex; align-items: center; justify-content: space-between; }
-    .form-group label { font-size: 12px; color: #333; width: 30%; font-weight: bold; }
-    .form-group select, .form-group input[type="text"] { width: 65%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; color: #555; background-color: #fdfdfd; }
-    .form-group select:disabled, .form-group input:disabled { background-color: #f5f5f5; color: #777; cursor: not-allowed; }
+        /* Custom inner content alignments matching master form specifications */
+        .form-single-column { max-width: 500px; display: flex; flex-direction: column; gap: 15px; }
+        .form-group-block { display: flex; flex-direction: column; gap: 6px; }
+        .form-group-block label { font-size: 12px; color: #333; font-weight: bold; }
+        .form-group-block select, .form-group-block input[type="text"], .form-group-block input[type="date"], .form-group-block input[type="file"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; color: #555; background-color: #fdfdfd; }
 
-    .form-actions { margin-top: 30px; text-align: center; }
-    .btn-submit { background-color: #2ca4ab; border: none; color: white; padding: 8px 25px; font-size: 12px; cursor: pointer; margin-right: 10px; font-weight: bold; border-radius: 2px; }
-    .btn-submit:hover { background-color: #23898f; }
-    .btn-cancel { background-color: #f4f4f4; border: 1px solid #ccc; padding: 8px 25px; font-size: 12px; cursor: pointer; color: #333; border-radius: 2px; }
+        /* Custom Tabular Report Styling Rules */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        .report-table th { background-color: #f4f4f4; color: #333; font-weight: bold; padding: 10px; text-align: left; border: 1px solid #ccc; }
+        .report-table td { padding: 10px; border: 1px solid #ccc; color: #555; }
+        .report-table tr:nth-child(even) { background-color: #f9f9f9; }
 
-    /* Unified Footer Space */
-    .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 10px 30px; font-size: 11px; width: 100%; margin-top: auto; }
-</style>
+        /* Unified Footer Area */
+        .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 8px 20px; font-size: 11px; width: 100%; margin-top: auto; }
+        
+        /* Notification Alert Styles */
+        .flash-container { width: 100%; margin-bottom: 15px; padding: 10px 15px; border-radius: 4px; background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; font-size: 12px; font-weight: bold; list-style-type: none; }
+    </style>
 </head>
 <body>
 
-  <header class="top-header">
-    <div class="header-left">
-      <div class="logo-text"><h1>e-Akadamik</h1><p>UNIFIED ACADEMIC SYSTEM</p></div>
-      <div class="university-name"><h2>PANJAB UNIVERSITY</h2><h2>CHANDIGARH</h2></div>
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo-text">
+                <h1>e-Akadamik</h1>
+                <p>UNIFIED ACADEMIC SYSTEM</p>
+            </div>
+            <div class="university-name">
+                <h2>PANJAB UNIVERSITY</h2>
+                <h2>CHANDIGARH</h2>
+            </div>
+        </div>
+        <div class="header-right">
+            <p>Welcome<br><strong>{{ user.name if user.name else 'Cse Student' }} ({{ user.role if user.role else 'Student' }})</strong></p>
+            <div style="font-size: 24px; margin-left: 5px;">👤</div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <a href="/dashboard">Dashboard</a>
+        {% if user.role == 'Student' %}
+            <a href="/examination">Examination</a>
+        {% else %}
+            <a href="/examination">Workflow</a>
+        {% endif %}
+        <a href="/result">Result</a>
+        <a href="/attendance" class="active">Attendance</a>
+        <a href="/syllabus">Syllabus</a>
+        <a href="/docupload">DocUpload</a>
+        <a href="/settings">Settings</a>
+        <a href="/logout" class="logout-item">Logout</a>
+    </nav>
+
+    <div class="container">
+        
+        <aside class="left-profile-card">
+            <div class="card-avatar">👤</div>
+            <div class="card-name">{{ user.name if user.name else 'Cse Student' }}</div>
+            <div class="card-role">({{ user.role if user.role else 'Student' }})</div>
+            <div class="card-divider"></div>
+            
+            <div class="sidebar-menu-wrapper">
+                <button type="button" class="action-btn" onclick="showSection('register')">Attendance Register</button>
+                <button type="button" class="action-btn" onclick="showSection('monthly')">Monthly Attendance</button>
+                <button type="button" class="action-btn" onclick="showSection('upload')">Upload Attendance</button>
+                <button type="button" class="action-btn" onclick="showSection('archive')">Archive Attendance</button>
+                <button type="button" class="action-btn" onclick="showSection('finalize')">Finalize Attendance</button>
+            </div>
+        </aside>
+
+        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+            
+            {% with msgs = get_flashed_messages(with_categories=true) %}
+              {% if msgs %}
+                <ul class="flash-container">
+                  {% for category, msg in msgs %}
+                    <li>{{ msg }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <main class="content-panel" id="register">
+                <div class="panel-header">Register Attendance</div>
+                <div class="form-container">
+                    <h4>Add Daily Entry Details</h4>
+                    
+                    {% if messages and action == 'register' %}
+                      <ul style="color:#155724; font-weight:bold; margin-bottom: 15px; font-size:12px;">
+                        {% for msg in messages %}
+                          <li>{{ msg }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+
+                    <form action="/attendance?action=register" method="POST" class="form-single-column">
+                        <div class="form-group-block">
+                            <label>Roll No:</label>
+                            <input type="text" name="roll_no" required>
+                        </div>
+                        <div class="form-group-block">
+                            <label>Date:</label>
+                            <input type="date" name="date" required>
+                        </div>
+                        <div class="form-group-block">
+                            <label>Status:</label>
+                            <select name="status" required>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="submit" class="action-btn" style="width: auto; padding: 8px 30px;">Submit Entry</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+
+            <main class="content-panel" id="monthly">
+                <div class="panel-header">Monthly Attendance Data</div>
+                <div class="form-container">
+                    <h4>Select Operational Month</h4>
+
+                    {% if messages and action == 'monthly' %}
+                      <ul style="color:#155724; font-weight:bold; margin-bottom: 15px; font-size:12px;">
+                        {% for msg in messages %}
+                          <li>{{ msg }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+
+                    <form action="/attendance?action=monthly" method="GET" class="form-single-column">
+                        <input type="hidden" name="action" value="monthly">
+                        <div class="form-group-block">
+                            <label>Month:</label>
+                            <select name="month" required>
+                                <option value="01">January</option><option value="02">February</option>
+                                <option value="03">March</option><option value="04">April</option>
+                                <option value="05">May</option><option value="06">June</option>
+                                <option value="07">July</option><option value="08">August</option>
+                                <option value="09">September</option><option value="10">October</option>
+                                <option value="11">November</option><option value="12">December</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="submit" class="action-btn" style="width: auto; padding: 8px 30px;">View Report</button>
+                        </div>
+                    </form>
+
+                    {% if monthly_data %}
+                    <div style="margin-top: 35px;">
+                        <h4 style="margin-bottom: 10px;">Generated Attendance Log Sheet</h4>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th style="width: 100px; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in monthly_data %}
+                                <tr>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] }}</td>
+                                    <td>{{ row[3] }}</td>
+                                    <td style="text-align: center;">
+                                        <form action="/attendance?action=delete" method="POST" style="display:inline;">
+                                            <input type="hidden" name="id" value="{{ row[0] }}">
+                                            <button type="submit" class="action-btn" style="padding: 4px 10px; background-color: #c0392b;">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+
+            <main class="content-panel" id="upload">
+                <div class="panel-header">Upload Bulk Attendance</div>
+                <div class="form-container">
+                    <h4>Select Structured Target Source</h4>
+
+                    {% if messages and action == 'upload' %}
+                      <ul style="color:#155724; font-weight:bold; margin-bottom: 15px; font-size:12px;">
+                        {% for msg in messages %}
+                          <li>{{ msg }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+
+                    <form action="/attendance?action=upload" method="POST" enctype="multipart/form-data" class="form-single-column">
+                        <div class="form-group-block">
+                            <label>Select File (CSV / Excel):</label>
+                            <input type="file" name="file" accept=".csv,.xlsx" required>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="submit" class="action-btn" style="width: auto; padding: 8px 30px;">Upload Dataset</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+
+            <main class="content-panel" id="archive">
+                <div class="panel-header">Archive Historical Datasets</div>
+                <div class="form-container">
+                    <h4>Select Retention Threshold Timeline</h4>
+
+                    {% if messages and action == 'archive' %}
+                      <ul style="color:#155724; font-weight:bold; margin-bottom: 15px; font-size:12px;">
+                        {% for msg in messages %}
+                          <li>{{ msg }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+
+                    <form action="/attendance?action=archive" method="POST" class="form-single-column">
+                        <div class="form-group-block">
+                            <label>Archive records before:</label>
+                            <input type="date" name="archive_date" required>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="submit" class="action-btn" style="width: auto; padding: 8px 30px; background-color: #e67e22;">Archive Now</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+
+            <main class="content-panel" id="finalize">
+                <div class="panel-header">Finalize Performance Metrics</div>
+                <div class="form-container">
+                    <h4>Lock Periodic Sheet Parameters</h4>
+
+                    {% if messages and action == 'finalize' %}
+                      <ul style="color:#155724; font-weight:bold; margin-bottom: 15px; font-size:12px;">
+                        {% for msg in messages %}
+                          <li>{{ msg }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+
+                    <form action="/attendance?action=finalize" method="POST" class="form-single-column">
+                        <div class="form-group-block">
+                            <label>Finalize records for Month:</label>
+                            <select name="finalize_month" required>
+                                <option value="01">January</option><option value="02">February</option>
+                                <option value="03">March</option><option value="04">April</option>
+                                <option value="05">May</option><option value="06">June</option>
+                                <option value="07">July</option><option value="08">August</option>
+                                <option value="09">September</option><option value="10">October</option>
+                                <option value="11">November</option><option value="12">December</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="submit" class="action-btn" style="width: auto; padding: 8px 30px; background-color: #27ae60;">Commit & Finalize</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
     </div>
-    <div class="header-right">
-      <p>Welcome<br><strong>{{ user.name }} ({{ user.role }})</strong></p>
-      <div style="font-size:24px;">👤</div>
-    </div>
-  </header>
 
- <nav class="main-nav">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/examination">Examination</a>
-    <a href="/result">Result</a>
-    <a href="/attendance" class="active">Attendance</a>
-    <a href="/syllabus">Syllabus</a>
-    <a href="/docupload">DocUpload</a>
-    <a href="/settings">Settings</a>
-    <a href="/logout" class="logout-item">Logout</a>
-</nav>
+    <footer class="footer">
+        <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
+        <p>Powered By C-DAC Mohali</p>
+    </footer>
 
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="profile-icon">👤</div>
-      <h3>{{ user.name }}</h3>
-      <p>({{ user.role }})</p>
-
-      <a href="#" class="action-btn" onclick="showSection('register')">Attendance Register</a>
-      <a href="#" class="action-btn" onclick="showSection('monthly')">Monthly Attendance</a>
-      <a href="#" class="action-btn" onclick="showSection('upload')">Upload Attendance</a>
-      <a href="#" class="action-btn" onclick="showSection('archive')">Archive Attendance</a>
-      <a href="#" class="action-btn" onclick="showSection('finalize')">Finalize Attendance</a>
-    </aside>
-{% with msgs = get_flashed_messages(with_categories=true) %}
-  {% if msgs %}
-    <ul style="color:green; font-weight:bold;">
-      {% for category, msg in msgs %}
-        <li>{{ msg }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-    <!-- Workspace -->
-    <div class="workspace">
-      <!-- Register -->
-      <section id="register" class="workspace-box">
-        <h3>Register Attendance</h3>
-        {% if messages and action == 'register' %}
-          <ul style="color:green; font-weight:bold;">
-            {% for msg in messages %}
-              <li>{{ msg }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <form action="/attendance?action=register" method="POST">
-          <label>Roll No:</label><br>
-          <input type="text" name="roll_no" required><br><br>
-          <label>Date:</label><br>
-          <input type="date" name="date" required><br><br>
-          <label>Status:</label><br>
-          <select name="status" required>
-            <option value="Present">Present</option>
-            <option value="Absent">Absent</option>
-          </select><br><br>
-          <button type="submit" class="action-btn">Submit</button>
-        </form>
-      </section>
-
-      <!-- Monthly -->
-      <section id="monthly" class="workspace-box">
-        <h3>Monthly Attendance</h3>
-        {% if messages and action == 'monthly' %}
-          <ul style="color:green; font-weight:bold;">
-            {% for msg in messages %}
-              <li>{{ msg }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <form action="/attendance?action=monthly" method="GET">
-          <label>Month:</label><br>
-          <select name="month" required>
-            <option value="01">January</option><option value="02">February</option>
-            <option value="03">March</option><option value="04">April</option>
-            <option value="05">May</option><option value="06">June</option>
-            <option value="07">July</option><option value="08">August</option>
-            <option value="09">September</option><option value="10">October</option>
-            <option value="11">November</option><option value="12">December</option>
-          </select><br><br>
-          <button type="submit" class="action-btn">View Report</button>
-        </form>
-
-        {% if monthly_data %}
-          <h3>Monthly Attendance Report</h3>
-          <table border="1" style="width:100%; margin-top:15px;">
-            <tr>
-              <th>Roll No</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-            {% for row in monthly_data %}
-              <tr>
-                <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>
-                  <form action="/attendance?action=delete" method="POST" style="display:inline;">
-                                        <input type="hidden" name="id" value="{{ row[0] }}">
-                    <button type="submit" class="action-btn" style="padding:5px;">Delete</button>
-                  </form>
-                </td>
-              </tr>
-            {% endfor %}
-          </table>
-        {% endif %}
-      </section>
-
-      <!-- Upload -->
-      <section id="upload" class="workspace-box">
-        <h3>Upload Attendance</h3>
-        {% if messages and action == 'upload' %}
-          <ul style="color:green; font-weight:bold;">
-            {% for msg in messages %}
-              <li>{{ msg }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <form action="/attendance?action=upload" method="POST" enctype="multipart/form-data">
-          <label>Select File (CSV/Excel):</label><br>
-          <input type="file" name="file" accept=".csv,.xlsx" required><br><br>
-          <button type="submit" class="action-btn">Upload</button>
-        </form>
-      </section>
-
-      <!-- Archive -->
-      <section id="archive" class="workspace-box">
-        <h3>Archive Attendance</h3>
-        {% if messages and action == 'archive' %}
-          <ul style="color:green; font-weight:bold;">
-            {% for msg in messages %}
-              <li>{{ msg }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <form action="/attendance?action=archive" method="POST">
-          <label>Archive records before:</label><br>
-          <input type="date" name="archive_date" required><br><br>
-          <button type="submit" class="action-btn">Archive</button>
-        </form>
-      </section>
-
-      <!-- Finalize -->
-      <section id="finalize" class="workspace-box">
-        <h3>Finalize Attendance</h3>
-        {% if messages and action == 'finalize' %}
-          <ul style="color:green; font-weight:bold;">
-            {% for msg in messages %}
-              <li>{{ msg }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <form action="/attendance?action=finalize" method="POST">
-          <label>Finalize records for Month:</label><br>
-          <select name="finalize_month" required>
-            <option value="01">January</option><option value="02">February</option>
-            <option value="03">March</option><option value="04">April</option>
-            <option value="05">May</option><option value="06">June</option>
-            <option value="07">July</option><option value="08">August</option>
-            <option value="09">September</option><option value="10">October</option>
-            <option value="11">November</option><option value="12">December</option>
-          </select><br><br>
-          <button type="submit" class="action-btn">Finalize</button>
-        </form>
-      </section>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
-    <p>Powered By C-DAC Mohali</p>
-  </footer>
-
-<script>
-function showSection(sectionId) {
-    document.querySelectorAll('.workspace-box').forEach(box => {
-        box.style.display = 'none';
-    });
-
-    document.getElementById(sectionId).style.display = 'block';
-}
-
-window.onload = function() {
-    let action = "{{ action }}";
-
-    if(action){
-        showSection(action);
-    } else {
-        showSection("register");
+    <script>
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-panel').forEach(box => {
+            box.style.display = 'none';
+        });
+        const currentPanel = document.getElementById(sectionId);
+        if (currentPanel) {
+            currentPanel.style.display = 'block';
+        }
     }
-}
-</script>
 
+    window.onload = function() {
+        let action = "{{ action }}";
+        if (action && action !== 'None' && action !== 'delete') {
+            showSection(action);
+        } else {
+            showSection("register");
+        }
+    }
+    </script>
 </body>
 </html>
 

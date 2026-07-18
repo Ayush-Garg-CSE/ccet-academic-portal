@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, session, redirect, flash, url_for, jsonify
 import sqlite3
 import os
+import json
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -19,7 +20,7 @@ def get_db_connection():
 
 # --- 1. HOME PORTAL ROUTE ---
 @app.route("/")
-def home():
+def dashboard_home():
     conn = get_db_connection()
     # Fetch all notices sorted by newest ID first
     db_notices = conn.execute("SELECT * FROM notices ORDER BY id DESC").fetchall()
@@ -29,7 +30,7 @@ def home():
     return render_template("index.html", latest_notices=db_notices[:3])
 
 # --- 2. MULTI-ROLE LOGIN SYSTEM ---
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     email = request.form.get("email")
     password = request.form.get("password")
@@ -75,7 +76,7 @@ def login():
         return redirect(url_for('dashboard'))
     else:
         flash("Access Denied. Invalid credentials or role selection.", "login_error")
-        return redirect(url_for('home'))
+        return render_template('login.html')
 
 # --- 3. STUDENT / FACULTY / ADMIN UNIVERSAL DASHBOARD ---
 @app.route("/dashboard")
@@ -443,90 +444,195 @@ def result():
     if not user_data:
         return redirect("/")
         
-    # --- GET REQUEST: Loads the baseline structural template exactly like Examination ---
+    # --- GET REQUEST: Loads selection profile ---
     if request.method == "GET":
-        if 'branch_full' not in user_data:
-            b = user_data.get('branch', 'CSE')
-            user_data['branch_full'] = "Computer Science & Engineering" if b == "CSE" else "Mechanical Engineering" if b == "ME" else "Electrical Engineering" if b == "EE" else "Civil Engineering"
-        
-        # We pass show_form=False initially so the right-hand panel behaves properly
-        return render_template("result.html", user=user_data, show_form=False)
+        # Pull profile directly from database to ensure fresh string matching
+        conn = sqlite3.connect("users.db")
+        conn.row_factory = sqlite3.Row
+        db_user = conn.execute("SELECT * FROM users WHERE email=?", (user_data.get('email'),)).fetchone()
+        conn.close()
 
-    # --- POST REQUEST: Processes selection form submission ---
-    selected_semester = request.form.get('semester')
-    roll_no = user_data.get('id') or user_data.get('user_id') or "CO25316"
-    branch = user_data.get('branch', 'CSE')
+        if db_user:
+            b = db_user['branch'] if db_user['branch'] else ''
+            if "computer" in b.lower() or b == "CSE":
+                user_data['branch_full'] = "Computer Science & Engineering"
+            elif "mech" in b.lower() or b == "ME":
+                user_data['branch_full'] = "Mechanical Engineering"
+            elif "ece" in b.lower() or b == "EE" or "electron" in b.lower():
+                user_data['branch_full'] = "Electronics & Communication Engineering"
+            elif "civil" in b.lower():
+                user_data['branch_full'] = "Civil Engineering"
+            else:
+                user_data['branch_full'] = b
+        else:
+            user_data['branch_full'] = "Not Assigned"
+            
+        return render_template("result.html", user=user_data)
 
-    from datetime import datetime
-    current_timestamp = datetime.now().strftime("%a %b %d %H:%M:%S IST %Y")
+   # --- POST REQUEST: Process Selection ---
+    selected_semester = int(request.form.get('semester'))
+    current_user_email = user_data.get('email')
 
     conn = sqlite3.connect("users.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    student_record = cursor.execute(
-        "SELECT * FROM students WHERE branch=? AND semester=?", 
-        (branch, selected_semester)
+    # Re-verify branch full metadata for the view page
+    db_user = cursor.execute("SELECT branch FROM users WHERE email=?", (current_user_email,)).fetchone()
+    b_string = db_user['branch'] if (db_user and db_user['branch']) else ''
+    
+    if "computer" in b_string.lower() or b_string == "CSE":
+        user_data['branch_full'] = "Computer Science & Engineering"
+    elif "mech" in b_string.lower() or b_string == "ME":
+        user_data['branch_full'] = "Mechanical Engineering"
+    elif "ece" in b_string.lower() or b_string == "EE" or "electron" in b_string.lower():
+        user_data['branch_full'] = "Electronics & Communication Engineering"
+    elif "civil" in b_string.lower():
+        user_data['branch_full'] = "Civil Engineering"
+    else:
+        user_data['branch_full'] = b_string
+
+    result_record = cursor.execute(
+        "SELECT * FROM student_results WHERE student_email=? AND semester=?", 
+        (current_user_email, selected_semester)
     ).fetchone()
 
-    mark_records = cursor.execute(
-        "SELECT subject, marks, grade FROM marks WHERE roll_no=?", 
-        (roll_no,)
-    ).fetchall()
+    # --- FIXED SNIPPET ---
+    if not result_record:
+        conn.close()
+        flash(f"Result for Semester {selected_semester} has not been declared yet.", "warning")
+        return redirect(url_for('result'))
+    # ---------------------
+
+    result_dict = dict(result_record)
+    parsed_subjects = json.loads(result_dict['subjects_json'])
+
+    if selected_semester % 2 == 0:
+        previous_sem = selected_semester - 1
+        prev_record = cursor.execute(
+            "SELECT sgpa FROM student_results WHERE student_email=? AND semester=?", 
+            (current_user_email, previous_sem)
+        ).fetchone()
+        
+        if prev_record:
+            result_dict['calculated_cgpa'] = (prev_record['sgpa'] + result_dict['sgpa']) / 2
+            result_dict['has_yearly_cgpa'] = True
+        else:
+            result_dict['calculated_cgpa'] = result_dict['sgpa']
+            result_dict['has_yearly_cgpa'] = False
+    else:
+        result_dict['has_yearly_cgpa'] = False
 
     conn.close()
 
-    # If no results uploaded yet, send back to template with the message parameters
-    if not student_record or not mark_records:
-        disclaimer_msg = (
-            "Disclaimer: Information displayed below is being provided before final scrutiny and "
-            "declaration by COE office, PU, to facilitate students of CCET to be informed about their result. "
-            "The result is informative in nature and should not be construed as final. "
-            "Final result will be declared by COE office, PU."
-        )
-        return render_template(
-            "result_transcript.html",
-            user=user_data,
-            has_result=False,
-            semester=selected_semester,
-            disclaimer=disclaimer_msg,
-            timestamp=current_timestamp
-        )
-
-    # If results exist, compile scores
-    parsed_results = []
-    total_credits = 0
-    total_points = 0
-    grade_points_map = {'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'F': 0}
-
-    for row in mark_records:
-        grade = row['grade'] or 'B+'
-        credits = 4 if "Physics" in row['subject'] or "Calculus" in row['subject'] else 3
-        total_credits += credits
-        total_points += (grade_points_map.get(grade, 7) * credits)
-
-        parsed_results.append({
-            'name': row['subject'],
-            'code': "ASM101",
-            'type': "Theory",
-            'grade': grade,
-            'credits': credits
-        })
-
-    sgpa_calc = round(total_points / total_credits, 2) if total_credits > 0 else 0.00
-
     return render_template(
-        "result_transcript.html",
-        user=user_data,
-        has_result=True,
-        student_info=student_record,
-        semester=selected_semester,
-        results=parsed_results,
-        sgpa=sgpa_calc,
-        cgpa=sgpa_calc,
-        total_credits=total_credits,
-        timestamp=current_timestamp
+        "view_result.html", 
+        user=user_data, 
+        result=result_dict, 
+        subjects=parsed_subjects,
+        semester=selected_semester
     )
+#---Result Calculation and upload---
+import csv
+import json
+import sqlite3
+from flask import Flask, render_template, request, flash, redirect, url_for, session
+
+
+
+# --- 1. BULK SPREADSHEET ENGINE ROUTE ---
+@app.route("/upload_results", methods=["GET", "POST"])
+def upload_results():
+    if 'user_data' not in session:
+        return redirect("/")
+
+    if request.method == "GET":
+        return render_template("upload_results.html")
+
+    selected_session = request.form.get('session')
+    selected_semester = int(request.form.get('semester'))
+    
+    if 'spreadsheet' not in request.files:
+        flash("No file detected.", "danger")
+        return redirect(request.url)
+        
+    file = request.files['spreadsheet']
+    if file.filename == '' or not file.filename.endswith('.csv'):
+        flash("Please upload a valid .csv spreadsheet.", "danger")
+        return redirect(request.url)
+
+    # Official CCET / Panjab University Letter Grade Weights
+    GRADE_MAP = {
+        'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'D': 4, 'F': 0
+    }
+
+    stream = file.stream.read().decode("utf-8").splitlines()
+    csv_reader = csv.DictReader(stream)
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    success_count = 0
+
+    for row in csv_reader:
+        email = row.get('email')
+        if not email:
+            continue
+
+        subjects_list = []
+        total_earned_points = 0.0
+        total_credits = 0.0
+        i = 1
+
+        while True:
+            code_key = f'sub{i}_code'
+            name_key = f'sub{i}_name'
+            credits_key = f'sub{i}_credits'
+            grade_key = f'sub{i}_grade'
+            
+            if code_key not in row or not row[code_key]:
+                break  # End of row data structure arrays
+                
+            grade_letter = row[grade_key].strip().upper()
+            try:
+                credits_val = float(row[credits_key])
+            except (ValueError, TypeError):
+                credits_val = 0.0
+
+            subjects_list.append({
+                "code": row[code_key],
+                "name": row[name_key],
+                "credits": credits_val,
+                "grade": grade_letter
+            })
+
+            # Audit grades (S, X, NP, NF) are skipped here since they are missing from GRADE_MAP
+            if grade_letter in GRADE_MAP:
+                total_earned_points += (credits_val * GRADE_MAP[grade_letter])
+                total_credits += credits_val
+
+            i += 1
+
+        # Math logic formulation
+        calculated_sgpa = (total_earned_points / total_credits) if total_credits > 0 else 0.0
+        subjects_json = json.dumps(subjects_list)
+
+        try:
+            cursor.execute("""
+                INSERT OR REPLACE INTO student_results (student_email, semester, subjects_json, sgpa, cgpa)
+                VALUES (?, ?, ?, ?, ?)
+            """, (email, selected_semester, subjects_json, round(calculated_sgpa, 2), round(calculated_sgpa, 2)))
+            
+            cursor.execute("UPDATE users SET batch=? WHERE email=?", (selected_session, email))
+            success_count += 1
+        except Exception as e:
+            print(f"Database row ingestion fault: {e}")
+
+    conn.commit()
+    conn.close()
+
+    flash(f"Successfully compiled ledger! Calculated SGPAs for {success_count} student records.", "success")
+    return redirect(url_for('upload_results'))
+
 # --- 11. ATTENDANCE ROUTE (BRANCHED BY ACCESSIBLE TIERS) ---
 @app.route("/attendance", methods=["GET", "POST"])
 def attendance():

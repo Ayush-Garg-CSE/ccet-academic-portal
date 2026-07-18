@@ -37,7 +37,7 @@
         .action-btn { display: block; width: 100%; padding: 10px; font-size: 12px; font-weight: bold; border: none; text-decoration: none; cursor: pointer; text-align: center; background-color: #16a085; color: white; border-radius: 4px; margin-top: 5px; }
         .action-btn:hover { background-color: #12876f; }
 
-        /* Right Side Panels Framework */
+        /* Right Side Panels Framework - Hidden by default */
         .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; display: none; }
         .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
         .form-container { padding: 30px; }
@@ -57,6 +57,9 @@
 
         /* Unified Footer Area */
         .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 8px 20px; font-size: 11px; width: 100%; margin-top: auto; }
+        
+        /* Form Alert styling configurations */
+        .form-alert { margin-bottom: 20px; padding: 12px; border-radius: 4px; font-size: 13px; font-weight: bold; text-align: center; background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
     </style>
 </head>
 <body>
@@ -104,9 +107,22 @@
         </aside>
 
         <!-- Right Hand Main Content Workflow Area -->
-        <main class="content-panel" id="search-criteria-panel">
+        <!-- FIX: This inline block forces the panel to remain open instantly if there is an error flash message -->
+        <main class="content-panel" id="search-criteria-panel" {% with messages = get_flashed_messages() %}{% if messages %}style="display: block;"{% endif %}{% endwith %}>
             <div class="panel-header">Result Criteria</div>
             <div class="form-container">
+                
+                <!-- FIXED LOGIC BLOCK: Catches the warning message right here inside the form container -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="form-alert">
+                         ⚠️ {{ message }}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
                 <h4>Select Details</h4>
                 <form method="POST" action="/result">
                     <div class="form-grid">

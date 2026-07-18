@@ -3,149 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eAkadamik | Settings</title>
+    <title>e-Akadamik | Settings</title>
     <style>
-        /* --- 1. RESET & BASE SETUP --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        html, body { height: 100%; width: 100%; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
 
-        body { 
-            min-height: 100vh; 
-            min-width: max-content; 
-            background-color: #eaebed; 
-            color: #333; 
-            display: flex; 
-            flex-direction: column; 
-        }
-
-        /* --- 2. ORANGE HEADER --- */
-        .top-header { 
-            background-color: #cc5a27; 
-            color: white; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 12px 40px; 
-            width: 100%;
-        }
-        
+        /* Header matching master template exactly */
+        .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; width: 100%; }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .logo-text h1 { font-size: 20px; font-weight: normal; margin: 0; }
         .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; }
         .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
         .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; }
-        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px;}
-        
-        /* --- 3. BEIGE NAVIGATION BAR --- */
-        .main-nav { 
-            background-color: #e6dac8; 
-            display: flex; 
-            border-bottom: 1px solid #ccc;
-            width: 100%;
-            padding: 0 40px; 
-        }
-        
-        .main-nav a { 
-            padding: 12px 22px; 
-            text-decoration: none; 
-            color: #555; 
-            font-size: 11px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            display: inline-block;
-        }
-        
-        /* Active Tab - Settings */
-        .main-nav a.active { 
-            background-color: #eaebed; 
-            color: #333; 
-            border-top: 3px solid #cc5a27; 
-        }
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px; }
 
-        .logout-btn { margin-left: auto; }
-        
-        /* --- 4. MAIN WORKSPACE --- */
-        .container { 
-            display: flex; 
-            padding: 30px 40px; 
-            gap: 30px; 
-            flex: 1; 
-            align-items: flex-start; 
-            width: 100%;
-        }
+        /* Navigation Bar matching master template exactly */
+        .main-nav { background-color: #f0e9df; display: flex; border-bottom: 1px solid #ccc; width: 100%; }
+        .main-nav a { padding: 12px 25px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .main-nav a.active { background-color: #ffffff; color: #555; border-top: 3px solid #cc5a27; }
+        .main-nav a.logout-item { margin-left: auto; padding-right: 30px; }
 
-        /* --- 5. SIDEBAR PROFILE CARD --- */
-        .sidebar { 
-            width: 260px; 
-            background-color: #f1ebd9; 
-            border: 1px solid #dcd3c2; 
-            padding: 25px 20px; 
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); 
-        }
+        /* Workspace container matching master template exactly */
+        .container { display: flex; padding: 20px; gap: 20px; flex: 1; align-items: flex-start; width: 100%; }
+
+        /* Left Sidebar Card Framework matching master template exactly */
+        .left-profile-card { width: 250px; background-color: #ffffff; border: 1px solid #ccc; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .card-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #555; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; background: white; color: #555; }
+        .card-name { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
+        .card-role { font-size: 12px; color: #666; margin-bottom: 15px; }
+        .card-divider { width: 100%; border-top: 1px dotted #ccc; margin-bottom: 15px; }
         
-        .profile-icon { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            border: 2px solid #555; 
-            margin: 0 auto 10px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 30px; 
-            background: white; 
-            color: #555; 
-        }
-        
-        .sidebar h3 { text-align: center; font-size: 15px; font-weight: normal; margin-bottom: 2px; }
-        .sidebar p { text-align: center; font-size: 13px; color: #444; margin-bottom: 25px; }
-        
-        /* --- 6. CLICKABLE TEAL BUTTONS --- */
+        /* Optimized Left Action Buttons */
         .action-btn { 
             display: block; 
             width: 100%; 
-            padding: 10px 10px; 
-            margin-bottom: 8px; 
-            font-size: 12px; 
-            font-weight: normal; 
-            border: 1px solid #1a7a7a; 
-            background-color: #208b8b; 
-            color: white;
+            padding: 12px; 
+            font-size: 13px; 
+            font-weight: bold; 
+            border: none; 
             text-decoration: none; 
-            text-align: center; 
             cursor: pointer; 
-            transition: background-color 0.2s ease;
+            text-align: center; 
+            background-color: #16a085; 
+            color: white; 
+            border-radius: 4px; 
+            margin-top: 5px; 
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
-        
-        .action-btn:hover { background-color: #166e6e; }
+        .action-btn:hover { background-color: #12876f; }
+        .action-btn:active { transform: scale(0.98); }
 
-        /* --- 7. FOOTER --- */
-        .footer { 
-            background-color: #cc5a27; 
-            color: rgba(255,255,255,0.9); 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 10px 40px; 
-            font-size: 11px; 
-            width: 100%; 
-        }
+        /* Right Side Panels Framework matching master template exactly */
+        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; padding: 25px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
+        .form-container { padding: 30px; }
+        .form-container p { font-size: 13px; color: #555; margin-bottom: 10px; }
 
-        /* --- 8. FORM INPUTS --- */
+        /* Unified Footer Area */
+        .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 8px 20px; font-size: 11px; width: 100%; margin-top: auto; }
+
+        /* Form Inputs formatting refinement */
         .form-input {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
-            font-size: 12px;
+            padding: 10px;
+            margin-bottom: 5px;
+            font-size: 13px;
             border: 1px solid #ccc;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-
     <header class="top-header">
         <div class="header-left">
             <div class="logo-text"><h1>e-Akadamik</h1><p>UNIFIED ACADEMIC SYSTEM</p></div>
@@ -159,66 +89,66 @@
 
     <nav class="main-nav">
         <a href="/dashboard">DASHBOARD</a>
-        <a href="/workflow">WORK-FLOW</a>
+        {% if user.role == 'Student' %}
+            <a href="/examination">EXAMINATION</a>
+        {% else %}
+            <a href="/workflow">WORK-FLOW</a>
+        {% endif %}
         <a href="/result">RESULT</a>
         <a href="/attendance">ATTENDANCE</a>
         <a href="/syllabus">SYLLABUS</a>
         <a href="/docupload">DOCUPLOAD</a>
         <a href="/settings" class="active">SETTINGS</a>
-        <a href="/logout" class="logout-btn">LOGOUT</a>
+        <a href="/logout" class="logout-item">LOGOUT</a>
     </nav>
 
     <div class="container">
         
-        <aside class="sidebar">
-            <div class="profile-icon">👤</div>
-            <h3>{{ user.name }}</h3>
-            <p>({{ user.role }})</p>
+        <aside class="left-profile-card">
+            <div class="card-avatar">👤</div>
+            <div class="card-name">{{ user.name }}</div>
+            <div class="card-role">({{ user.role }})</div>
+            <div class="card-divider"></div>
 
-            <!-- Flash messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
-                <ul style="list-style:none; padding:0; margin-bottom:10px;">
+                <ul style="list-style:none; padding:0; margin-bottom:10px; width: 100%;">
                   {% for category, message in messages %}
-                    <li style="color:green; font-size:12px;">{{ message }}</li>
+                    <li style="color:green; font-size:12px; text-align: center;">{{ message }}</li>
                   {% endfor %}
                 </ul>
               {% endif %}
             {% endwith %}
             
-            <!-- Change Password Form -->
-<form action="/settings?action=password" method="POST">
-
-    <input type="password"
-           name="current_password"
-           placeholder="Current Password"
-           class="form-input"
-           required>
-
-    <br><br>
-
-    <input type="password"
-           name="new_password"
-           placeholder="New Password"
-           class="form-input"
-           required>
-
-    <br><br>
-
-    <input type="password"
-           name="confirm_password"
-           placeholder="Confirm New Password"
-           class="form-input"
-           required>
-
-    <br><br>
-
-    <button type="submit" class="action-btn">
-        Change Password
-    </button>
-
-</form>
+            <form action="/settings?action=password" method="POST" style="width: 100%;">
+                <input type="password"
+                       name="current_password"
+                       placeholder="Current Password"
+                       class="form-input"
+                       required>
+                <br><br>
+                <input type="password"
+                       name="new_password"
+                       placeholder="New Password"
+                       class="form-input"
+                       required>
+                <br><br>
+                <input type="password"
+                       name="confirm_password"
+                       placeholder="Confirm New Password"
+                       class="form-input"
+                       required>
+                <br><br>
+                <button type="submit" class="action-btn">
+                    Change Password
+                </button>
+            </form>
         </aside>
+
+        <main class="content-panel">
+            <h3 style="font-size: 20px; color: #333; margin-bottom: 15px; border-bottom: 2px solid #16a085; padding-bottom: 8px;">Account Settings</h3>
+            <p style="color:#555; font-size:14px; line-height: 1.5;">Manage your password configurations and system parameters from the sidebar interface.</p>
+        </main>
 
     </div>
 
@@ -226,6 +156,5 @@
         <p>eAkadamik © copyright 2026. All Rights Reserved.</p>
         <p>Powered By C-DAC Mohali</p>
     </footer>
-
 </body>
 </html>

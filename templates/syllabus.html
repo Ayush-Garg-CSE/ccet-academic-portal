@@ -3,103 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eAkadamik | Syllabus</title>
+    <title>e-Akadamik | Syllabus</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { min-height: 100vh; min-width: max-content; background-color: #eaebed; color: #333; display: flex; flex-direction: column; }
+        html, body { height: 100%; width: 100%; background-color: #eaeff2; color: #333; display: flex; flex-direction: column; }
 
-        .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 12px 40px; width: 100%; }
+        /* Header matching Examination template exactly */
+        .top-header { background-color: #cc5a27; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; width: 100%; }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .logo-text h1 { font-size: 20px; font-weight: normal; margin: 0; }
         .logo-text p { font-size: 9px; letter-spacing: 1px; margin: 0; }
         .university-name { border-left: 1px solid rgba(255,255,255,0.4); padding-left: 20px; }
         .university-name h2 { font-size: 14px; font-weight: normal; margin: 0; }
-        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px;}
+        .header-right { text-align: right; font-size: 12px; display: flex; align-items: center; gap: 15px; }
 
-        .main-nav { background-color: #e6dac8; display: flex; border-bottom: 1px solid #ccc; width: 100%; padding: 0 40px; }
-        .main-nav a { padding: 12px 22px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
-        .main-nav a.active { background-color: #eaebed; color: #333; border-top: 3px solid #cc5a27; }
-        .logout-btn { margin-left: auto; }
+        /* Navigation Bar matching Examination template exactly */
+        .main-nav { background-color: #f0e9df; display: flex; border-bottom: 1px solid #ccc; width: 100%; }
+        .main-nav a { padding: 12px 25px; text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .main-nav a.active { background-color: #ffffff; color: #555; border-top: 3px solid #cc5a27; }
+        .main-nav a.logout-item { margin-left: auto; padding-right: 30px; }
 
-        .container { display: flex; padding: 30px 40px; gap: 30px; flex: 1; align-items: flex-start; width: 100%; }
+        /* Workspace container matching Examination template exactly */
+        .container { display: flex; padding: 20px; gap: 20px; flex: 1; align-items: flex-start; width: 100%; }
 
-        .sidebar { width: 260px; background-color: #f1ebd9; border: 1px solid #dcd3c2; padding: 25px 20px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
-        .profile-icon { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #555; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; background: white; color: #555; }
-        .sidebar h3 { text-align: center; font-size: 15px; font-weight: normal; margin-bottom: 2px; }
-        .sidebar p { text-align: center; font-size: 13px; color: #444; margin-bottom: 25px; }
+        /* Left Sidebar Card Framework matching Examination template exactly */
+        .left-profile-card { width: 250px; background-color: #ffffff; border: 1px solid #ccc; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .card-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #555; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; background: white; color: #555; }
+        .card-name { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
+        .card-role { font-size: 12px; color: #666; margin-bottom: 15px; }
+        .card-divider { width: 100%; border-top: 1px dotted #ccc; margin-bottom: 15px; }
+        
+        /* Left Action Buttons */
+        .action-btn { display: block; width: 100%; padding: 10px; font-size: 12px; font-weight: bold; border: none; text-decoration: none; cursor: pointer; text-align: center; background-color: #16a085; color: white; border-radius: 4px; margin-top: 5px; }
+        .action-btn:hover { background-color: #12876f; }
 
-        .action-btn { display: block; width: 100%; padding: 10px 10px; margin-bottom: 8px; font-size: 12px; border: 1px solid #1a7a7a; background-color: #208b8b; color: white; text-decoration: none; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
-        .action-btn:hover { background-color: #166e6e; }
+        /* Right Side Panels Framework */
+        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #ccc; }
+        .panel-header { background-color: #16a085; color: white; padding: 12px 20px; font-size: 14px; font-weight: bold; }
+        .form-container { padding: 30px; }
 
-        .content-panel { flex-grow: 1; background: #ffffff; border: 1px solid #dcd3c2; padding: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .content-panel h3 { border-bottom: 2px solid #208b8b; padding-bottom: 10px; margin-bottom: 20px; color: #208b8b; font-size: 16px;}
+        /* Content Table layout properties */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        .report-table th { background-color: #f4f4f4; color: #333; font-weight: bold; padding: 10px; text-align: left; border: 1px solid #ccc; }
+        .report-table td { padding: 10px; border: 1px solid #ccc; color: #555; }
+        .report-table tr:nth-child(even) { background-color: #f9f9f9; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; font-size: 12px; text-align: center; }
-        th { background-color: #f1ebd9; color: #333; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-
-        .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 10px 40px; font-size: 11px; width: 100%; }
+        /* Unified Footer Area */
+        .footer { background-color: #cc5a27; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; padding: 8px 20px; font-size: 11px; width: 100%; margin-top: auto; }
     </style>
 </head>
 <body>
 
     <header class="top-header">
         <div class="header-left">
-            <div class="logo-text"><h1>e-Akadamik</h1><p>UNIFIED ACADEMIC SYSTEM</p></div>
-            <div class="university-name"><h2>PANJAB UNIVERSITY</h2><h2>CHANDIGARH</h2></div>
+            <div class="logo-text">
+                <h1>e-Akadamik</h1>
+                <p>UNIFIED ACADEMIC SYSTEM</p>
+            </div>
+            <div class="university-name">
+                <h2>PANJAB UNIVERSITY</h2>
+                <h2>CHANDIGARH</h2>
+            </div>
         </div>
         <div class="header-right">
             <p>Welcome<br><strong>{{ user.name }} ({{ user.role }})</strong></p>
-            <div style="font-size: 24px;">👤</div>
+            <div style="font-size: 24px; margin-left: 5px;">👤</div>
         </div>
     </header>
 
     <nav class="main-nav">
-        <a href="/dashboard">DASHBOARD</a>
-        <a href="/workflow">WORK-FLOW</a>
-        <a href="/result">RESULT</a>
-        <a href="/attendance">ATTENDANCE</a>
-        <a href="/syllabus" class="active">SYLLABUS</a>
-        <a href="/docupload">DOCUPLOAD</a>
-        <a href="/settings">SETTINGS</a>
-        <a href="/logout" class="logout-btn">LOGOUT</a>
+        <a href="/dashboard">Dashboard</a>
+        {% if user.role == 'Student' %}
+            <a href="/examination">Examination</a>
+        {% else %}
+            <a href="/examination">Workflow</a>
+        {% endif %}
+        <a href="/result">Result</a>
+        <a href="/attendance">Attendance</a>
+        <a href="/syllabus" class="active">Syllabus</a>
+        <a href="/docupload">DocUpload</a>
+        <a href="/settings">Settings</a>
+        <a href="/logout" class="logout-item">Logout</a>
     </nav>
 
     <div class="container">
         
-        <aside class="sidebar">
-            <div class="profile-icon">📚</div>
-            <h3>{{ user.name }}</h3>
-            <p>({{ user.role }})</p>
+        <aside class="left-profile-card">
+            <div class="card-avatar">📚</div>
+            <div class="card-name">{{ user.name }}</div>
+            <div class="card-role">({{ user.role }})</div>
+            <div class="card-divider"></div>
             <a href="/syllabus?action=view" class="action-btn">View Syllabus</a>
         </aside>
 
         <main class="content-panel">
-            <h3>Syllabus Information</h3>
-
-            {% if action == 'view' %}
-                {% if syllabus_data %}
-                    <table>
-                        <tr>
-                            <th>Branch</th>
-                            <th>Semester</th>
-                            <th>Subject</th>
-                        </tr>
-                        {% for row in syllabus_data %}
-                        <tr>
-                            <td>{{ row[0] }}</td>
-                            <td>{{ row[1] }}</td>
-                            <td>{{ row[2] }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
+            <div class="panel-header">Syllabus Information</div>
+            <div class="form-container">
+                
+                {% if action == 'view' %}
+                    {% if syllabus_data %}
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Branch</th>
+                                    <th>Semester</th>
+                                    <th>Subject</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in syllabus_data %}
+                                <tr>
+                                    <td>{{ row[0] }}</td>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p style="color:#888; text-align:center; padding: 20px 0;">No syllabus data available.</p>
+                    {% endif %}
                 {% else %}
-                    <p style="color:#888; text-align:center;">No syllabus data available.</p>
+                    <p style="color:#888; text-align:center; padding: 20px 0;">Click "View Syllabus" to load syllabus details.</p>
                 {% endif %}
-            {% else %}
-                <p style="color:#888; text-align:center;">Click "View Syllabus" to load syllabus details.</p>
-            {% endif %}
+
+            </div>
         </main>
     </div>
 
@@ -110,5 +138,3 @@
 
 </body>
 </html>
-
-

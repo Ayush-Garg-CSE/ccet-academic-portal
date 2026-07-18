@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Semester Performance Report</title>
+    <style>
+        :root {
+            --primary-orange: #ff6b35;
+            --dark-orange: #e85d04;
+            --bg-light: #f8f9fa;
+            --text-dark: #2b2d42;
+            --border-color: #e0e0e0;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-light); padding: 40px 20px; margin: 0; }
+        .marksheet-card { max-width: 800px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-top: 6px solid var(--primary-orange); }
+        .header { text-align: center; border-bottom: 2px solid var(--primary-orange); padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: var(--dark-orange); margin: 0; font-size: 1.6rem; }
+        .student-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; background: #fff8f5; padding: 20px; border-radius: 8px; border: 1px solid #ffe5db; }
+        .detail-item strong { color: #555; font-size: 0.85rem; text-transform: uppercase; }
+        .detail-item div { font-size: 1.05rem; font-weight: 600; margin-top: 2px; }
+        .marks-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .marks-table th { background-color: var(--primary-orange); color: white; padding: 12px; text-align: left; }
+        .marks-table td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); }
+        .scores-box { display: flex; justify-content: flex-end; gap: 20px; margin-top: 30px; border-top: 2px dashed var(--border-color); padding-top: 20px; }
+        .score-card { background: #fff8f5; color: var(--text-dark); padding: 15px 30px; border-radius: 8px; text-align: center; min-width: 150px; border: 1px solid #ffe5db; border-top: 4px solid var(--primary-orange); }
+        .score-card div { font-size: 0.9rem; font-weight: 600; color: #666; text-transform: uppercase; }
+        .score-card .val { font-size: 2.2rem; font-weight: 800; color: var(--dark-orange); margin-top: 5px; }
+        .btn-back { display: inline-block; margin-top: 20px; background: #666; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="marksheet-card">
+    <div class="header">
+        <h1>CHANDIGARH COLLEGE OF ENGINEERING & TECHNOLOGY</h1>
+        <p>Official Grade Report Statement</p>
+    </div>
+    <div class="student-details">
+        <div class="detail-item"><strong>Student Email</strong><div>{{ user.email }}</div></div>
+        <div class="detail-item"><strong>Branch / Department</strong><div>{{ user.branch_full }}</div></div>
+        <div class="detail-item"><strong>Academic Session</strong><div>{{ user.batch }}</div></div>
+        <div class="detail-item"><strong>Assessment Target</strong><div>Semester {{ semester }}</div></div>
+    </div>
+    <table class="marks-table">
+        <thead>
+            <tr><th>Subject Code & Description</th><th style="text-align: center;">Credits</th><th style="text-align: center;">Earned Letter Grade</th></tr>
+        </thead>
+        <tbody>
+            {% for sub in subjects %}
+            <tr>
+                <td><strong>{{ sub.code }}</strong> — {{ sub.name }}</td>
+                <td style="text-align: center;">{{ sub.credits }}</td>
+                <td style="text-align: center;"><span style="font-weight: 700; color: var(--dark-orange);">{{ sub.grade }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="scores-box">
+        <div class="score-card"><div>Semester SGPA</div><div class="val">{{ "%.2f"|format(result.sgpa) }}</div></div>
+        {% if result.has_yearly_cgpa %}
+        <div class="score-card" style="border-top-color: #2a9d8f;"><div>Yearly CGPA</div><div class="val" style="color: #2a9d8f;">{{ "%.2f"|format(result.calculated_cgpa) }}</div></div>
+        {% endif %}
+    </div>
+    <a href="/result" class="btn-back">← Change Selection</a>
+</div>
+</body>
+</html>
